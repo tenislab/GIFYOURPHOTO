@@ -154,6 +154,28 @@
       return error ? { error: error.message } : { id: data.id };
     },
 
+    async deleteOrder(orderId) {
+      if (!live) {
+        const d = readLocal();
+        writeLocal({ orders: (d.orders || []).filter(o => o.id !== orderId) });
+        return { ok: true };
+      }
+      const { error } = await sb.from("orders").delete().eq("id", orderId);
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    async deleteMedia(mediaId) {
+      if (!live) return { ok: true };
+      const { data: m } = await sb.from("media").select("original_path,preview_path").eq("id", mediaId).single();
+      const { error } = await sb.from("media").delete().eq("id", mediaId);
+      if (error) return { error: error.message };
+      if (m) {
+        if (m.original_path) await sb.storage.from("originals").remove([m.original_path]);
+        if (m.preview_path) await sb.storage.from("previews").remove([m.preview_path]);
+      }
+      return { ok: true };
+    },
+
     async deleteGroup(groupId) {
       if (!live) return { ok: true };
       const { error } = await sb.from("groups").delete().eq("id", groupId);
