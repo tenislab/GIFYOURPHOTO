@@ -861,6 +861,21 @@ class Component extends DCLogic {
 
   componentDidMount() {
     const api = window.JRRData;
+    // Red de seguridad: si la vuelta de Stripe pierde los parámetros, la
+    // sesión guardada permite confirmar el pago igualmente.
+    try {
+      const guardada = JSON.parse(localStorage.getItem("jrr-last-session") || "null");
+      if (guardada && guardada.id && api && api.verifyStripe) {
+        api.verifyStripe(guardada.id).then(r => {
+          localStorage.removeItem("jrr-last-session");
+          if (r && r.paid) {
+            this.flash(this.t().stripeOk);
+            if (api.mode === "supabase") api.load().then(x => this.hydrate(x)).catch(() => {});
+          }
+        }).catch(() => {});
+      }
+    } catch (e) {}
+
     try {
       const q = new URLSearchParams(location.search);
       if (q.get("pedido")) {
@@ -1375,7 +1390,11 @@ class Component extends DCLogic {
         // Con tarjeta se va a Stripe con el id real del pedido, no con el provisional.
         if (instant && api.stripeCheckout) {
           return api.stripeCheckout(saved.id).then(res => {
-            if (res && res.url) { window.location.href = res.url; return; }
+            if (res && res.url) {
+              try { localStorage.setItem("jrr-last-session", JSON.stringify({ id: res.id, ref: saved.ref })); } catch (e) {}
+              window.location.href = res.url;
+              return;
+            }
             this.flash(res && res.error === "sin-sesion" ? t.loginFirst : t.stripeMissing);
           });
         }

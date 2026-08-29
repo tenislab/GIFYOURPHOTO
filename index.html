@@ -7,7 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
 <link rel="canonical" href="./Galeria%20HAMK%20RUN%20CLUB.dc.html">
-<meta http-equiv="refresh" content="0; url=./Galeria%20HAMK%20RUN%20CLUB.dc.html">
 <style>
   html, body { height: 100%; margin: 0; }
   body {
@@ -21,7 +20,13 @@
 </style>
 </head>
 <body>
-<p>Abriendo la galería… <a href="./Galeria%20HAMK%20RUN%20CLUB.dc.html">entrar</a></p>
-<script>location.replace("./Galeria%20HAMK%20RUN%20CLUB.dc.html");</script>
+<p>Abriendo la galería… <a id="ir" href="./Galeria%20HAMK%20RUN%20CLUB.dc.html">entrar</a></p>
+<script>
+  // Conserva los parámetros (?pedido=...&sesion=...) que Stripe devuelve al
+  // volver del pago; sin ellos no se puede confirmar la compra.
+  var destino = "./Galeria%20HAMK%20RUN%20CLUB.dc.html" + location.search + location.hash;
+  document.getElementById("ir").href = destino;
+  location.replace(destino);
+</script>
 </body>
 </html>

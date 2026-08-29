@@ -397,7 +397,7 @@
         });
         const body = await r.json().catch(() => ({}));
         if (!r.ok || !body.url) return { error: body.error || "stripe" };
-        return { url: body.url };
+        return { url: body.url, id: body.id };
       } catch (e) {
         return { error: String(e) };
       }
