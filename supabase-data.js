@@ -335,8 +335,15 @@
         writeLocal({ orders });
         return { order };
       }
-      const { data: who } = await sb.auth.getUser();
+      // Si la sesión caducó, se renueva antes de guardar el pedido.
+      let { data: who } = await sb.auth.getUser();
+      if (!who || !who.user) {
+        await sb.auth.refreshSession().catch(() => {});
+        const reintento = await sb.auth.getUser();
+        who = reintento.data;
+      }
       const uid = (who && who.user && who.user.id) || null;
+      if (!uid) return { error: "sin-sesion" };
       const { data: o, error } = await sb.from("orders").insert({
         buyer_id: uid, buyer_name: order.buyerName, buyer_email: order.buyerEmail,
         method: order.method, total: order.total,
