@@ -43,14 +43,21 @@ async function firmaValida(payload: string, header: string, secret: string) {
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  // Acepta la firma de prueba o la real: así valen los dos webhooks a la vez.
+  const secretos = [
+    Deno.env.get("STRIPE_WEBHOOK_TEST"),
+    Deno.env.get("STRIPE_WEBHOOK_LIVE"),
+    Deno.env.get("STRIPE_WEBHOOK_SECRET")
+  ].filter(Boolean) as string[];
   const sig = req.headers.get("stripe-signature") || "";
   const payload = await req.text();
 
-  if (!secret) return new Response("falta STRIPE_WEBHOOK_SECRET", { status: 500 });
-  if (!(await firmaValida(payload, sig, secret))) {
-    return new Response("firma no válida", { status: 400 });
+  if (!secretos.length) return new Response("falta el secreto del webhook", { status: 500 });
+  let ok = false;
+  for (const s of secretos) {
+    if (await firmaValida(payload, sig, s)) { ok = true; break; }
   }
+  if (!ok) return new Response("firma no válida", { status: 400 });
 
   const evento = JSON.parse(payload);
   if (evento.type !== "checkout.session.completed") {

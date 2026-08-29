@@ -18,8 +18,13 @@ const cors = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
-  const key = Deno.env.get("STRIPE_SECRET_KEY");
-  if (!key) return json({ error: "falta STRIPE_SECRET_KEY" }, 500);
+  // STRIPE_MODE = "test" | "live". Cada modo usa su propia clave, así no hace
+  // falta borrar ninguna para cambiar de entorno.
+  const mode = (Deno.env.get("STRIPE_MODE") ?? "live").toLowerCase();
+  const key = mode === "test"
+    ? (Deno.env.get("STRIPE_SECRET_TEST") ?? Deno.env.get("STRIPE_SECRET_KEY"))
+    : (Deno.env.get("STRIPE_SECRET_LIVE") ?? Deno.env.get("STRIPE_SECRET_KEY"));
+  if (!key) return json({ error: "falta la clave de Stripe para el modo " + mode }, 500);
   const site = (Deno.env.get("SITE_URL") ?? "").replace(/\/$/, "");
 
   const auth = req.headers.get("Authorization") || "";
