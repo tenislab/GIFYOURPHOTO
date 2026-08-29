@@ -166,6 +166,52 @@
       return error ? { error: error.message } : { id: data.id };
     },
 
+    // Borra un álbum y sus archivos, salvo lo que tenga descarga activa: eso se
+    // conserva hasta que caduque, para no dejar sin archivo a quien ya pagó.
+    async deleteAlbum(albumId, unlockDays) {
+      if (!live) return { ok: true };
+      const dias = Number(unlockDays ?? 5);
+      const { data: media } = await sb.from("media")
+        .select("id,original_path,preview_path").eq("album_id", albumId);
+      if (!media || !media.length) {
+        const b0 = await sb.from("albums").delete().eq("id", albumId);
+        return b0.error ? { error: b0.error.message } : { ok: true, borrado: true };
+      }
+
+      // ¿Qué archivos están dentro de una ventana de descarga abierta?
+      const ids = media.map(m => m.id);
+      const { data: vivos } = await sb
+        .from("order_items")
+        .select("media_id, orders!inner(status,paid_at)")
+        .in("media_id", ids)
+        .eq("orders.status", "paid");
+      const limite = Date.now() - dias * 86400000;
+      const protegidos = new Set(
+        (vivos || [])
+          .filter(v => v.orders && v.orders.paid_at && new Date(v.orders.paid_at).getTime() > limite)
+          .map(v => v.media_id)
+      );
+
+      // Las previews se retiran siempre: el álbum desaparece de la galería.
+      const previas = media.map(m => m.preview_path).filter(Boolean);
+      if (previas.length) await sb.storage.from("previews").remove(previas);
+
+      // Los originales solo si nadie tiene descarga viva.
+      const originales = media
+        .filter(m => !protegidos.has(m.id) && m.original_path)
+        .map(m => m.original_path);
+      if (originales.length) await sb.storage.from("originals").remove(originales);
+
+      await sb.from("media").update({ hidden: true }).eq("album_id", albumId);
+      await sb.from("albums").update({ published: false }).eq("id", albumId);
+
+      if (!protegidos.size) {
+        const borrado = await sb.from("albums").delete().eq("id", albumId);
+        if (!borrado.error) return { ok: true, borrado: true };
+      }
+      return { ok: true, borrado: false, protegidos: protegidos.size };
+    },
+
     async deleteOrder(orderId) {
       if (!live) {
         const d = readLocal();
