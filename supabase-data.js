@@ -261,8 +261,14 @@
     // que comprueba que el pedido está pagado (has_paid_media).
     async downloadUrls(orderId) {
       if (!live) return { urls: [] };
-      const { data, error } = await sb.functions.invoke("download", { body: { order_id: orderId } });
-      return error ? { error: error.message, urls: [] } : { urls: (data && data.urls) || [] };
+      // El nombre de la función puede estar en minúscula o con mayúscula.
+      for (const name of ["download", "Download"]) {
+        try {
+          const { data, error } = await sb.functions.invoke(name, { body: { order_id: orderId } });
+          if (!error) return { urls: (data && data.urls) || [] };
+        } catch (e) { /* probamos el siguiente nombre */ }
+      }
+      return { error: "download", urls: [] };
     }
   };
 
