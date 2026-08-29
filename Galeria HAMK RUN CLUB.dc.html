@@ -1050,7 +1050,9 @@ class Component extends DCLogic {
 
   goOrders = () => {
     this.setState({ view: "orders", panel: null, cartOpen: false });
-    setTimeout(() => this.marcarVistos(this.state.orders.map(o => o.ref)), 1200);
+    setTimeout(() => this.marcarVistos(
+      this.state.orders.filter(o => o.status === "paid").map(o => o.ref)
+    ), 1200);
     const api = window.JRRData;
     if (api && api.mode === "supabase") api.load().then(d => this.hydrate(d)).catch(() => {});
     this.refreshNotifs();
