@@ -41,6 +41,7 @@ create table if not exists public.groups (
   name text not null,
   city text not null default '',
   palette int not null default 0,
+  accent text,
   poster_path text,
   created_at timestamptz not null default now()
 );
@@ -68,9 +69,14 @@ create table if not exists public.media (
   file_name text,
   bytes bigint,
   position int not null default 0,
+  hidden boolean not null default false,
   created_at timestamptz not null default now()
 );
 create index if not exists media_album_idx on public.media (album_id, position);
+
+-- Para bases creadas antes de estas columnas
+alter table public.groups add column if not exists accent text;
+alter table public.media  add column if not exists hidden boolean not null default false;
 
 -- PEDIDOS -------------------------------------------------------------------
 create table if not exists public.orders (

@@ -41,24 +41,21 @@
           avatar: (sess.session.user.user_metadata || {}).avatar || ""
         } : null;
       }
-      // 'hidden' puede no existir todavía en la base: si falla, repetimos sin ella.
+      // Las columnas 'accent' y 'hidden' pueden no existir todavía en la base:
+      // se prueban las combinaciones hasta que una funcione.
       let groups = null;
-      const conHidden = await sb
-        .from("groups")
-        .select("id,name,city,palette,poster_path,albums(id,run_date,name,km,price_photo,price_video,published,media(id,kind,preview_path,file_name,position,hidden))")
-        .order("created_at", { ascending: true });
-      if (conHidden.error) {
-        const sinHidden = await sb
-          .from("groups")
-          .select("id,name,city,palette,poster_path,albums(id,run_date,name,km,price_photo,price_video,published,media(id,kind,preview_path,file_name,position))")
-          .order("created_at", { ascending: true });
-        groups = sinHidden.data;
-      } else {
-        groups = conHidden.data;
+      const columnas = (conAccent, conHidden) =>
+        "id,name,city,palette" + (conAccent ? ",accent" : "") +
+        ",poster_path,albums(id,run_date,name,km,price_photo,price_video,published," +
+        "media(id,kind,preview_path,file_name,position" + (conHidden ? ",hidden" : "") + "))";
+      for (const [a, h] of [[true, true], [true, false], [false, true], [false, false]]) {
+        const r = await sb.from("groups").select(columnas(a, h)).order("created_at", { ascending: true });
+        if (!r.error) { groups = r.data; break; }
       }
+      groups = groups || [];
 
       const mapped = (groups || []).map(g => ({
-        id: g.id, name: g.name, city: g.city, palette: g.palette,
+        id: g.id, name: g.name, city: g.city, palette: g.palette, accent: g.accent || "",
         poster: g.poster_path ? publicUrl(g.poster_path) : "",
         items: (g.albums || [])
           .slice()
@@ -157,10 +154,11 @@
       if (!uid) return { error: "sin sesión" };
       const row = {
         owner_id: uid,
-        name: group.name || "Grupo sin nombre",
+        name: group.name || "Evento sin nombre",
         city: group.city || "",
         palette: group.palette || 0
       };
+      if (group.accent) row.accent = group.accent;
       if (group.id && String(group.id).length > 20) row.id = group.id;
       const { data, error } = await sb.from("groups").upsert(row).select("id").single();
       return error ? { error: error.message } : { id: data.id };
