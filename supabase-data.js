@@ -355,6 +355,29 @@
       return error ? { error: error.message } : { ok: true };
     },
 
+    // Pregunta a Stripe si la sesión está cobrada (no depende del webhook).
+    async verifyStripe(sessionId) {
+      if (!live) return { paid: false };
+      const name = (window.JRR_FUNCTIONS || {}).checkout || "checkout";
+      const { data: sess } = await sb.auth.getSession();
+      const token = sess && sess.session ? sess.session.access_token : cfg.anonKey;
+      try {
+        const r = await fetch(cfg.url + "/functions/v1/" + name, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+            apikey: cfg.anonKey
+          },
+          body: JSON.stringify({ session_id: sessionId })
+        });
+        const body = await r.json().catch(() => ({}));
+        return r.ok ? body : { paid: false, error: body.error };
+      } catch (e) {
+        return { paid: false, error: String(e) };
+      }
+    },
+
     // Página de pago de Stripe para un pedido ya creado.
     async stripeCheckout(orderId) {
       if (!live) return { error: "local" };

@@ -19,5 +19,6 @@ window.JRR_FUNCTIONS = {
   download: "Download",
   watermark: "watermark",
   notify: "notify",
-  checkout: "checkout"
+  checkout: "checkout",
+  verify: "verify"
 };
