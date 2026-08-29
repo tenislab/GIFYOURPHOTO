@@ -18,5 +18,6 @@ window.JRR_PAY = {
 window.JRR_FUNCTIONS = {
   download: "Download",
   watermark: "watermark",
-  notify: "notify"
+  notify: "notify",
+  checkout: "checkout"
 };

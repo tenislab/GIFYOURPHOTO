@@ -35,7 +35,11 @@
       if (sess && sess.session) {
         const uid = sess.session.user.id;
         const { data: p } = await sb.from("profiles").select("id,name,role").eq("id", uid).single();
-        user = p ? { id: p.id, name: p.name, role: p.role, email: sess.session.user.email } : null;
+        user = p ? {
+          id: p.id, name: p.name, role: p.role,
+          email: sess.session.user.email,
+          avatar: (sess.session.user.user_metadata || {}).avatar || ""
+        } : null;
       }
       const { data: groups } = await sb
         .from("groups")
@@ -148,6 +152,12 @@
       if (group.id && String(group.id).length > 20) row.id = group.id;
       const { data, error } = await sb.from("groups").upsert(row).select("id").single();
       return error ? { error: error.message } : { id: data.id };
+    },
+
+    async deleteGroup(groupId) {
+      if (!live) return { ok: true };
+      const { error } = await sb.from("groups").delete().eq("id", groupId);
+      return error ? { error: error.message } : { ok: true };
     },
 
     async setGroupPoster(groupId, file) {
@@ -310,15 +320,64 @@
     // que comprueba que el pedido está pagado (has_paid_media).
     async downloadUrls(orderId) {
       if (!live) return { urls: [] };
-      // El nombre de la función puede estar en minúscula o con mayúscula.
+      const { data: sess } = await sb.auth.getSession();
+      const token = sess && sess.session ? sess.session.access_token : null;
+      if (!token) return { reason: "sin-sesion", urls: [] };
       const cfgNames = (window.JRR_FUNCTIONS || {});
-      for (const name of [cfgNames.download || "download", "download", "Download"]) {
+      const names = [cfgNames.download || "download", "download", "Download"];
+      let last = { reason: "sin-funcion", urls: [] };
+      for (const name of names) {
         try {
-          const { data, error } = await sb.functions.invoke(name, { body: { order_id: orderId } });
-          if (!error) return { urls: (data && data.urls) || [] };
-        } catch (e) { /* probamos el siguiente nombre */ }
+          const r = await fetch(cfg.url + "/functions/v1/" + name, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+              apikey: cfg.anonKey
+            },
+            body: JSON.stringify({ order_id: orderId })
+          });
+          const body = await r.json().catch(() => ({}));
+          if (r.ok) return { urls: body.urls || [] };
+          if (r.status === 402) return { reason: "no-pagado", urls: [] };
+          if (r.status === 410) return { reason: "caducado", urls: [] };
+          if (r.status === 404) { last = { reason: "no-encontrado", urls: [] }; continue; }
+          last = { reason: body.error || "error", urls: [] };
+        } catch (e) { /* nombre no válido: probamos el siguiente */ }
       }
-      return { error: "download", urls: [] };
+      return last;
+    },
+
+    // Avatar: se guarda en la propia cuenta, sin tocar la base de datos.
+    async setAvatar(key) {
+      if (!live) return { ok: true };
+      const { error } = await sb.auth.updateUser({ data: { avatar: key } });
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    // Página de pago de Stripe para un pedido ya creado.
+    async stripeCheckout(orderId) {
+      if (!live) return { error: "local" };
+      const { data: sess } = await sb.auth.getSession();
+      const token = sess && sess.session ? sess.session.access_token : null;
+      if (!token) return { error: "sin-sesion" };
+      const name = (window.JRR_FUNCTIONS || {}).checkout || "checkout";
+      try {
+        const r = await fetch(cfg.url + "/functions/v1/" + name, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+            apikey: cfg.anonKey
+          },
+          body: JSON.stringify({ order_id: orderId })
+        });
+        const body = await r.json().catch(() => ({}));
+        if (!r.ok || !body.url) return { error: body.error || "stripe" };
+        return { url: body.url };
+      } catch (e) {
+        return { error: String(e) };
+      }
     }
   };
 
