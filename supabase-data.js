@@ -131,14 +131,46 @@
 
     async saveGroup(group) {
       if (!live) return { ok: true };
-      const { data, error } = await sb.from("groups").upsert({
-        id: group.id || undefined, name: group.name, city: group.city, palette: group.palette
-      }).select("id").single();
+      const { data: who } = await sb.auth.getUser();
+      const uid = who && who.user && who.user.id;
+      if (!uid) return { error: "sin sesión" };
+      const row = {
+        owner_id: uid,
+        name: group.name || "Grupo sin nombre",
+        city: group.city || "",
+        palette: group.palette || 0
+      };
+      if (group.id && String(group.id).length > 20) row.id = group.id;
+      const { data, error } = await sb.from("groups").upsert(row).select("id").single();
       return error ? { error: error.message } : { id: data.id };
+    },
+
+    async setGroupPoster(groupId, file) {
+      if (!live || !file) return { ok: false };
+      const path = "groups/" + groupId + "-" + Date.now() + ".jpg";
+      const up = await sb.storage.from("previews").upload(path, file, {
+        contentType: file.type || "image/jpeg", upsert: true
+      });
+      if (up.error) return { error: up.error.message };
+      const { error } = await sb.from("groups").update({ poster_path: path }).eq("id", groupId);
+      return error ? { error: error.message } : { ok: true, path };
+    },
+
+    // Primer arranque: si no hay ningún grupo, crea el del club.
+    async ensureGroup(name, city) {
+      if (!live) return { ok: true };
+      const { data: existing } = await sb.from("groups").select("id").limit(1);
+      if (existing && existing.length) return { id: existing[0].id };
+      return API.saveGroup({ name, city, palette: 0 });
     },
 
     async saveAlbum(groupId, album, files) {
       if (!live) return { ok: true };
+      if (!groupId || String(groupId).length < 20) {
+        const g = await API.ensureGroup("HAMK RUN CLUB", "Hämeenlinna");
+        if (g.error) return { error: g.error };
+        groupId = g.id;
+      }
       const { data: a, error } = await sb.from("albums").upsert({
         id: album.id && album.id.length > 20 ? album.id : undefined,
         group_id: groupId, run_date: album.date, name: album.name, km: album.km || null,
@@ -147,19 +179,52 @@
       if (error) return { error: error.message };
 
       let position = 0;
-      for (const f of (files || [])) {
+      for (const item of (files || [])) {
+        const f = item.file;
+        if (!f) continue;
         const kind = f.type.indexOf("video") === 0 ? "video" : "photo";
-        const base = a.id + "/" + Date.now() + "-" + f.name.replace(/[^\w.\-]/g, "_");
-        const up = await sb.storage.from("originals").upload(base, f);
-        if (up.error) continue;
-        // La preview con marca de agua la genera la Edge Function watermark;
-        // hasta entonces se referencia el mismo nombre en el bucket público.
-        await sb.from("media").insert({
-          album_id: a.id, kind, original_path: base, preview_path: base,
+        const safe = f.name.replace(/[^\w.\-]/g, "_");
+        const base = a.id + "/" + Date.now() + "-" + position + "-" + safe;
+
+        const upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
+        if (upOriginal.error) continue;
+
+        // Preview visible: la versión reducida con marca de agua CSS hasta que
+        // la Edge Function watermark la reescriba incrustada en el píxel.
+        let previewPath = null;
+        if (item.preview) {
+          const blob = await (await fetch(item.preview)).blob();
+          const pPath = base.replace(/\.[^.]+$/, "") + "-preview.jpg";
+          const upPreview = await sb.storage.from("previews").upload(pPath, blob, {
+            contentType: "image/jpeg", upsert: true
+          });
+          if (!upPreview.error) previewPath = pPath;
+        }
+
+        const { data: inserted } = await sb.from("media").insert({
+          album_id: a.id, kind, original_path: base, preview_path: previewPath,
           file_name: f.name, bytes: f.size, position: position++
-        });
+        }).select("id").single();
+
+        // Marca de agua incrustada: reescribe la preview dentro del píxel.
+        if (inserted && kind === "photo") {
+          sb.functions.invoke("watermark", {
+            body: { media_id: inserted.id, original_path: base }
+          }).catch(() => {});
+        }
       }
       return { id: a.id };
+    },
+
+    // Emails (Edge Function notify). Falla en silencio si no está desplegada.
+    async sendEmail(payload) {
+      if (!live) return { ok: false };
+      try {
+        const { error } = await sb.functions.invoke("notify", { body: payload });
+        return error ? { error: error.message } : { ok: true };
+      } catch (e) {
+        return { error: String(e) };
+      }
     },
 
     async createOrder(order) {
