@@ -22,3 +22,7 @@ window.JRR_FUNCTIONS = {
   checkout: "checkout",
   verify: "verify"
 };
+
+// Dirección pública de la web: es la que se usa en el QR y al compartir.
+// Ojo: no uses la de vista previa de Vercel (jrrfoto-git-main-...), porque pide login.
+window.JRR_SITE_URL = "https://jrrfoto.vercel.app";
