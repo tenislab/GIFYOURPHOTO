@@ -44,9 +44,13 @@ Deno.serve(async (req) => {
   const src = await decode(new Uint8Array(await file.arrayBuffer()));
   if (!(src instanceof Image)) return json({ error: "formato no soportado" }, 415);
 
-  // Preview a 1600px de lado largo: suficiente para elegir, inútil para imprimir.
+  // Preview a 1200px de lado largo: se ve bien en el móvil, gasta la mitad de
+  // tráfico y no sirve para imprimir.
+  const LADO = 1200;
   const long = Math.max(src.width, src.height);
-  const img = long > 1600 ? src.resize(...(src.width >= src.height ? [1600, Image.RESIZE_AUTO] : [Image.RESIZE_AUTO, 1600])) : src;
+  const img = long > LADO
+    ? src.resize(...(src.width >= src.height ? [LADO, Image.RESIZE_AUTO] : [Image.RESIZE_AUTO, LADO]))
+    : src;
 
   const text = Deno.env.get("WM_TEXT") ?? "@JRR";
   const size = Math.max(18, Math.round(img.width / 26));
@@ -63,7 +67,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  const jpeg = await img.encodeJPEG(80);
+  const jpeg = await img.encodeJPEG(72);
   const previewPath = original_path.replace(/\.[^.]+$/, "") + "-wm.jpg";
 
   const up = await admin.storage.from("previews").upload(previewPath, jpeg, {
