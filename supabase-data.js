@@ -41,10 +41,21 @@
           avatar: (sess.session.user.user_metadata || {}).avatar || ""
         } : null;
       }
-      const { data: groups } = await sb
+      // 'hidden' puede no existir todavía en la base: si falla, repetimos sin ella.
+      let groups = null;
+      const conHidden = await sb
         .from("groups")
-        .select("id,name,city,palette,poster_path,albums(id,run_date,name,km,price_photo,price_video,published,media(id,kind,preview_path,file_name,position))")
+        .select("id,name,city,palette,poster_path,albums(id,run_date,name,km,price_photo,price_video,published,media(id,kind,preview_path,file_name,position,hidden))")
         .order("created_at", { ascending: true });
+      if (conHidden.error) {
+        const sinHidden = await sb
+          .from("groups")
+          .select("id,name,city,palette,poster_path,albums(id,run_date,name,km,price_photo,price_video,published,media(id,kind,preview_path,file_name,position))")
+          .order("created_at", { ascending: true });
+        groups = sinHidden.data;
+      } else {
+        groups = conHidden.data;
+      }
 
       const mapped = (groups || []).map(g => ({
         id: g.id, name: g.name, city: g.city, palette: g.palette,
@@ -56,6 +67,7 @@
             id: a.id, date: a.run_date, name: a.name, km: a.km,
             pricePhoto: a.price_photo, priceVideo: a.price_video, published: a.published,
             media: (a.media || [])
+              .filter(m => !m.hidden)
               .slice()
               .sort((x, y) => x.position - y.position)
               .map(m => ({ id: m.id, kind: m.kind, name: m.file_name, url: publicUrl(m.preview_path) }))
@@ -168,7 +180,12 @@
       if (!live) return { ok: true };
       const { data: m } = await sb.from("media").select("original_path,preview_path").eq("id", mediaId).single();
       const { error } = await sb.from("media").delete().eq("id", mediaId);
-      if (error) return { error: error.message };
+
+      // Si la foto está en un pedido, la base la protege: la ocultamos.
+      if (error) {
+        const oculta = await sb.from("media").update({ hidden: true }).eq("id", mediaId);
+        if (oculta.error) return { error: oculta.error.message };
+      }
       if (m) {
         if (m.original_path) await sb.storage.from("originals").remove([m.original_path]);
         if (m.preview_path) await sb.storage.from("previews").remove([m.preview_path]);
