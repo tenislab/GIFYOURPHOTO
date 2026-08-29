@@ -68,7 +68,7 @@
         const days = Number(window.JRR_UNLOCK_DAYS || 5);
         orders = (os || []).map(o => ({
           id: o.id, ref: o.ref, method: o.method, status: o.status, total: Number(o.total),
-          buyerName: o.buyer_name, buyerEmail: o.buyer_email, date: o.created_at,
+          buyerName: o.buyer_name, buyerEmail: o.buyer_email, concept: o.buyer_name, date: o.created_at,
           unlockedUntil: o.paid_at ? new Date(new Date(o.paid_at).getTime() + days * 86400000).toISOString() : null,
           lines: (o.order_items || []).map(i => ({ mediaId: i.media_id }))
         }));
@@ -213,7 +213,7 @@
 
         // Marca de agua incrustada: reescribe la preview dentro del píxel.
         if (inserted && kind === "photo") {
-          sb.functions.invoke("watermark", {
+          sb.functions.invoke((window.JRR_FUNCTIONS || {}).watermark || "watermark", {
             body: { media_id: inserted.id, original_path: base }
           }).catch(() => {});
         }
@@ -225,7 +225,8 @@
     async sendEmail(payload) {
       if (!live) return { ok: false };
       try {
-        const { error } = await sb.functions.invoke("notify", { body: payload });
+        const fn = (window.JRR_FUNCTIONS || {}).notify || "notify";
+        const { error } = await sb.functions.invoke(fn, { body: payload });
         return error ? { error: error.message } : { ok: true };
       } catch (e) {
         return { error: String(e) };
@@ -289,16 +290,19 @@
       return error ? { error: error.message } : { ok: true };
     },
 
-    async markPaid(orderId) {
+    async markPaid(orderId, ref) {
       if (!live) {
         const d = readLocal();
         const orders = (d.orders || []).map(o => o.id === orderId ? Object.assign({}, o, { status: "paid" }) : o);
         writeLocal({ orders });
         return { ok: true };
       }
-      const { error } = await sb.from("orders")
-        .update({ status: "paid", paid_at: new Date().toISOString() })
-        .eq("id", orderId);
+      const patch = { status: "paid", paid_at: new Date().toISOString() };
+      const uuid = orderId && String(orderId).length > 20;
+      const q = uuid
+        ? sb.from("orders").update(patch).eq("id", orderId)
+        : sb.from("orders").update(patch).eq("ref", ref || orderId);
+      const { error } = await q;
       return error ? { error: error.message } : { ok: true };
     },
 
@@ -307,7 +311,8 @@
     async downloadUrls(orderId) {
       if (!live) return { urls: [] };
       // El nombre de la función puede estar en minúscula o con mayúscula.
-      for (const name of ["download", "Download"]) {
+      const cfgNames = (window.JRR_FUNCTIONS || {});
+      for (const name of [cfgNames.download || "download", "download", "Download"]) {
         try {
           const { data, error } = await sb.functions.invoke(name, { body: { order_id: orderId } });
           if (!error) return { urls: (data && data.urls) || [] };

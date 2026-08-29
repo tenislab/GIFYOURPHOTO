@@ -12,3 +12,11 @@ window.JRR_PAY = {
   holder: "Jaime Rivas Reinoso",
   phone: "+34 618 648 370"
 };
+
+// Nombre real (slug) de cada función en Supabase. Al renombrar una función en el
+// panel, el título cambia pero la dirección no: aquí va la dirección real.
+window.JRR_FUNCTIONS = {
+  download: "Download",
+  watermark: "watermark",
+  notify: "notify"
+};
