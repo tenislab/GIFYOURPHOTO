@@ -59,18 +59,23 @@
       }));
 
       let orders = [];
+      let notifs = [];
       if (user) {
         const { data: os } = await sb
           .from("orders")
-          .select("id,ref,method,status,total,buyer_name,buyer_email,created_at,order_items(media_id)")
+          .select("id,ref,method,status,total,buyer_name,buyer_email,created_at,paid_at,order_items(media_id)")
           .order("created_at", { ascending: false });
+        const days = Number(window.JRR_UNLOCK_DAYS || 5);
         orders = (os || []).map(o => ({
           id: o.id, ref: o.ref, method: o.method, status: o.status, total: Number(o.total),
           buyerName: o.buyer_name, buyerEmail: o.buyer_email, date: o.created_at,
+          unlockedUntil: o.paid_at ? new Date(new Date(o.paid_at).getTime() + days * 86400000).toISOString() : null,
           lines: (o.order_items || []).map(i => ({ mediaId: i.media_id }))
         }));
+        const n = await API.listNotifications();
+        notifs = n.notifs || [];
       }
-      return { users: [], user, groups: mapped, orders };
+      return { users: [], user, groups: mapped, orders, notifs };
     },
 
     async signUp({ name, email, pass, role }) {
@@ -234,14 +239,54 @@
         writeLocal({ orders });
         return { order };
       }
+      const { data: who } = await sb.auth.getUser();
+      const uid = (who && who.user && who.user.id) || null;
       const { data: o, error } = await sb.from("orders").insert({
-        buyer_id: order.buyerId, buyer_name: order.buyerName, buyer_email: order.buyerEmail,
-        method: order.method, total: order.total
+        buyer_id: uid, buyer_name: order.buyerName, buyer_email: order.buyerEmail,
+        method: order.method, total: order.total,
+        status: order.status === "paid" ? "paid" : "pending",
+        paid_at: order.status === "paid" ? new Date().toISOString() : null
       }).select("id,ref").single();
       if (error) return { error: error.message };
       const rows = order.lines.map(l => ({ order_id: o.id, media_id: l.mediaId, unit_price: l.price }));
       if (rows.length) await sb.from("order_items").insert(rows);
       return { order: Object.assign({}, order, { id: o.id, ref: o.ref }) };
+    },
+
+    // ---- Avisos (viajan entre el corredor y el fotógrafo) ----
+    async listNotifications() {
+      if (!live) return { notifs: (readLocal().notifs || []) };
+      const { data, error } = await sb
+        .from("notifications")
+        .select("id,type,to_owner,to_email,order_id,ref,total,method,from_label,until,handled,created_at")
+        .order("created_at", { ascending: true });
+      if (error) return { notifs: [], error: error.message };
+      return {
+        notifs: (data || []).map(n => ({
+          id: n.id, type: n.type, audience: n.to_owner ? "owner" : n.to_email,
+          orderId: n.order_id, ref: n.ref, total: Number(n.total || 0), method: n.method,
+          from: n.from_label, until: n.until, handled: n.handled, createdAt: n.created_at
+        }))
+      };
+    },
+
+    async addNotification(n) {
+      if (!live) return { ok: true };
+      const { error } = await sb.from("notifications").insert({
+        type: n.type,
+        to_owner: n.audience === "owner",
+        to_email: n.audience === "owner" ? null : n.audience,
+        order_id: n.orderId && String(n.orderId).length > 20 ? n.orderId : null,
+        ref: n.ref, total: n.total, method: n.method || null,
+        from_label: n.from || null, until: n.until || null
+      });
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    async handleNotification(id) {
+      if (!live) return { ok: true };
+      const { error } = await sb.from("notifications").update({ handled: true }).eq("id", id);
+      return error ? { error: error.message } : { ok: true };
     },
 
     async markPaid(orderId) {

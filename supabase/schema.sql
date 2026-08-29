@@ -79,7 +79,7 @@ create table if not exists public.orders (
   buyer_id uuid references public.profiles(id) on delete set null,
   buyer_name text not null default '',
   buyer_email text not null default '',
-  method text not null check (method in ('revolut','transfer','cash')),
+  method text not null check (method in ('card','revolut','transfer','cash')),
   status text not null default 'pending' check (status in ('pending','paid','cancelled')),
   total numeric not null default 0,
   paid_at timestamptz,
