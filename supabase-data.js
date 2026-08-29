@@ -104,6 +104,18 @@
       return { user: { id: data.user.id, email, name: p ? p.name : email, role: p ? p.role : "runner" } };
     },
 
+    async resetPassword(email) {
+      if (!live) return { error: "local" };
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    async changePassword(pass) {
+      if (!live) return { error: "local" };
+      const { error } = await sb.auth.updateUser({ password: pass });
+      return error ? { error: error.message } : { ok: true };
+    },
+
     async signOut() {
       if (!live) { writeLocal({ user: null }); return {}; }
       await sb.auth.signOut();
