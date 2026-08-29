@@ -212,6 +212,56 @@
       return { ok: true, borrado: false, protegidos: protegidos.size };
     },
 
+    // Registro de descargas (si la tabla no existe, no pasa nada).
+    async logDownload(order, archivos) {
+      if (!live) return { ok: true };
+      const filas = (archivos || []).map(a => ({
+        order_id: order && String(order.id).length > 20 ? order.id : null,
+        media_id: a.mediaId && String(a.mediaId).length > 20 ? a.mediaId : null,
+        ref: order && order.ref,
+        buyer_email: order && order.buyerEmail,
+        file_name: a.name || null
+      }));
+      if (!filas.length) return { ok: true };
+      try { await sb.from("downloads").insert(filas); } catch (e) {}
+      return { ok: true };
+    },
+
+    // Datos del panel de administración.
+    async adminStats() {
+      if (!live) return { usoMb: 0, top: [], descargas: [] };
+      const out = { usoMb: 0, top: [], descargas: [] };
+
+      const { data: media } = await sb.from("media").select("id,file_name,bytes,album_id");
+      out.usoMb = Math.round(((media || []).reduce((n, m) => n + (Number(m.bytes) || 0), 0) / 1048576) * 10) / 10;
+      out.archivos = (media || []).length;
+
+      const { data: items } = await sb
+        .from("order_items")
+        .select("media_id, unit_price, orders!inner(status)")
+        .eq("orders.status", "paid");
+      const cuenta = {};
+      (items || []).forEach(i => {
+        cuenta[i.media_id] = cuenta[i.media_id] || { veces: 0, euros: 0 };
+        cuenta[i.media_id].veces++;
+        cuenta[i.media_id].euros += Number(i.unit_price) || 0;
+      });
+      const nombres = {};
+      (media || []).forEach(m => { nombres[m.id] = m.file_name; });
+      out.top = Object.keys(cuenta)
+        .map(id => ({ nombre: nombres[id] || "—", veces: cuenta[id].veces, euros: cuenta[id].euros }))
+        .sort((a, b) => b.veces - a.veces)
+        .slice(0, 6);
+
+      const d = await sb.from("downloads")
+        .select("ref,buyer_email,file_name,created_at")
+        .order("created_at", { ascending: false })
+        .limit(12);
+      out.descargas = d.error ? [] : (d.data || []);
+      out.sinTablaDescargas = !!d.error;
+      return out;
+    },
+
     async deleteOrder(orderId) {
       if (!live) {
         const d = readLocal();
