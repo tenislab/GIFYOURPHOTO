@@ -723,11 +723,11 @@
       </label>
       <div>
         <span style="display: block; font-size: 13px; color: #a9bad4; margin-bottom: 8px;">{{ t.fFiles }}</span>
-        <label for="f-files" style="display: flex; flex-direction: column; gap: 6px; border: 2px dashed rgba(244,247,251,0.2); border-radius: 18px; padding: 26px 20px; cursor: pointer; background: rgba(244,247,251,0.04);" style-hover="border-color: #ff6b3d; background: rgba(255,107,61,0.08)">
+        <label for="f-files" style="{{ dropZoneStyle }}" onDragOver="{{ dragOver }}" onDragLeave="{{ dragLeave }}" onDrop="{{ dropFiles }}" style-hover="border-color: #ff6b3d; background: rgba(255,107,61,0.08)">
           <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px;">{{ t.dropTitle }}</span>
           <span style="font-size: 13px; color: #8fa3c0;">{{ dropCount }}</span>
         </label>
-        <input id="f-files" type="file" multiple accept="image/*,video/*" onChange="{{ addFiles }}">
+        <input id="f-files" type="file" multiple="{{ true }}" accept="image/*,video/*,.heic,.heif,.mov" onChange="{{ addFiles }}">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
           <sc-for list="{{ formMedia }}" as="fm" hint-placeholder-count="0">
             <span style="display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; border-radius: 999px; background: rgba(244,247,251,0.07); font-size: 12px; max-width: 100%;">
@@ -1264,7 +1264,7 @@ class Component extends DCLogic {
     lang: null, view: "home", groupId: "hamk", albumId: null,
     panel: null, editing: null, toast: "", cartOpen: false,
     groups: [{ id: "hamk", name: "HAMK RUN CLUB", city: "Hämeenlinna", palette: 0, poster: "assets/hamk-run-club-cartel.jpeg", items: [] }],
-    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
+    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, dragging: false, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
     form: this.blankForm(),
     groupForm: { name: "", city: "", palette: 1, posterFile: null, posterPreview: "" },
     authMode: "login", authForm: { name: "", email: "", pass: "", role: "runner" }, authError: "",
@@ -1280,6 +1280,9 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.vigilarScroll();
+    this._noOpen = (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf("Files") > -1) e.preventDefault(); };
+    window.addEventListener("dragover", this._noOpen);
+    window.addEventListener("drop", this._noOpen);
     const api = window.JRRData;
     try {
       const guardado = JSON.parse(localStorage.getItem("jrr-cart") || "[]");
@@ -1699,9 +1702,26 @@ class Component extends DCLogic {
     });
   };
 
+  dragOver = (e) => { e.preventDefault(); if (!this.state.dragging) this.setState({ dragging: true }); };
+  dragLeave = (e) => { e.preventDefault(); this.setState({ dragging: false }); };
+  dropFiles = (e) => {
+    e.preventDefault();
+    this.setState({ dragging: false });
+    const dt = e.dataTransfer;
+    if (!dt) return;
+    const lista = dt.files && dt.files.length
+      ? Array.from(dt.files)
+      : Array.from(dt.items || []).map(i => i.getAsFile && i.getAsFile()).filter(Boolean);
+    if (lista.length) this.ingestFiles(lista);
+  };
+
   addFiles = (e) => {
     const all = Array.from(e.target.files || []);
     e.target.value = "";
+    this.ingestFiles(all);
+  };
+
+  ingestFiles = (all) => {
     const maxMb = Number(this.props.maxFileMb ?? 50);
     const files = all.filter(f => f.size <= maxMb * 1048576);
     if (files.length !== all.length) this.flash(this.t().tooBig.replace("{n}", maxMb));
@@ -1898,6 +1918,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    if (this._noOpen) { window.removeEventListener("dragover", this._noOpen); window.removeEventListener("drop", this._noOpen); }
     if (this._scroll) window.removeEventListener("scroll", this._scroll);
     if (this._poll) clearInterval(this._poll);
   }
@@ -2752,6 +2773,11 @@ class Component extends DCLogic {
         }
       })),
       videoTip: t.videoTip.replace("{n}", Number(this.props.maxFileMb ?? 50)),
+      dragOver: this.dragOver, dragLeave: this.dragLeave, dropFiles: this.dropFiles,
+      dropZoneStyle: "display: flex; flex-direction: column; gap: 6px; border: 2px dashed " +
+        (this.state.dragging ? "#ff6b3d" : "rgba(244,247,251,0.2)") +
+        "; border-radius: 18px; padding: 26px 20px; cursor: pointer; transition: all 160ms ease; background: " +
+        (this.state.dragging ? "rgba(255,107,61,0.12)" : "rgba(244,247,251,0.04)") + ";",
       upBusy: !!this.state.upProgress,
       upLabel: this.state.upProgress
         ? t.uploadProgress.replace("{d}", this.state.upProgress.done).replace("{t}", this.state.upProgress.total)
