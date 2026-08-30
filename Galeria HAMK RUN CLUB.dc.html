@@ -34,6 +34,10 @@
   ::-webkit-scrollbar-track { background: rgba(244,247,251,0.05); }
   ::-webkit-scrollbar-thumb { background: #ff6b3d; border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { background: #ff9d3d; }
+  @media (max-width: 760px) {
+    [data-panel] { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
+    [data-admin-grid] { grid-template-columns: 1fr !important; }
+  }
   @media (max-width: 980px) {
     [data-brand-text], [data-user-premium], [data-user-name], [data-logout] { display: none !important; }
     [data-header-actions] { flex-wrap: nowrap !important; min-width: 0 !important; }
@@ -155,7 +159,7 @@
           <span>{{ groupCount }}</span>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-bottom: 44px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 18px; margin-bottom: 44px;">
           <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
             <button type="button" onClick="{{ g.open }}" style="{{ g.cardStyle }}" style-hover="transform: translateY(-4px)">
               <span style="{{ g.posterStyle }}"></span>
@@ -289,7 +293,7 @@
               </div>
             </sc-if>
             <sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}">
-              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); gap: 20px;">
                 <sc-for list="{{ esqueletos }}" as="sk" hint-placeholder-count="3">
                   <div style="border-radius: 24px; overflow: hidden; background: #131f34; border: 1px solid rgba(244,247,251,0.09);">
                     <div style="height: 190px; background-image: linear-gradient(100deg, rgba(244,247,251,0.04) 30%, rgba(244,247,251,0.1) 50%, rgba(244,247,251,0.04) 70%); background-size: 220% 100%; animation: shimmer 1.4s ease-in-out infinite;"></div>
@@ -302,7 +306,7 @@
                 </sc-for>
               </div>
             </sc-if>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); gap: 20px;">
               <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
                 <article style="border-radius: 24px; overflow: hidden; background: #131f34; border: 1px solid rgba(244,247,251,0.09); display: flex; flex-direction: column; box-shadow: 0 18px 40px rgba(4,9,20,0.45);">
                   <button type="button" onClick="{{ it.open }}" style="position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; background: rgba(244,247,251,0.08); height: 190px; overflow: hidden; border: 0; padding: 0; cursor: pointer; width: 100%;" style-hover="filter: brightness(1.07)">
@@ -388,7 +392,7 @@
           </div>
         </sc-if>
 
-        <div style="columns: 230px; column-gap: 16px;">
+        <div style="column-width: 230px; column-gap: 16px;">
           <sc-for list="{{ album.media }}" as="m" hint-placeholder-count="6">
             <figure style="margin: 0 0 16px; break-inside: avoid; position: relative; border-radius: 22px; overflow: hidden; background: #131f34; border: 1px solid rgba(244,247,251,0.09); display: flex; flex-direction: column;">
               <span style="{{ m.selStyle }}" onClick="{{ m.toggleSel }}">✓</span>
@@ -439,7 +443,7 @@
         <button type="button" onClick="{{ goHome }}" style="{{ s.crumb }}" style-hover="color: #ff9a72">{{ t.back }}</button>
         <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 6vw, 44px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 28px;">{{ t.adminTitle }}</h1>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 26px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 14px; margin-bottom: 26px;">
           <div style="padding: 22px; border-radius: 22px; background: linear-gradient(150deg, #ff6b3d, #ffb03d); color: #14233c;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.8;">{{ t.today }}</div>
             <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(34px, 5vw, 42px); letter-spacing: -0.02em; margin-top: 8px;">{{ admin.hoy }}</div>
@@ -472,7 +476,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 14px; margin-bottom: 22px;">
             <label style="{{ s.field }}">
               {{ t.calcPeople }}
               <input type="number" min="1" value="{{ calc.personas }}" onChange="{{ calc.setPersonas }}" style="{{ s.input }}">
@@ -511,7 +515,7 @@
           </div>
         </section>
 
-        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+        <div data-admin-grid="1" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
           <section style="padding: 22px; border-radius: 22px; background: #131f34; border: 1px solid rgba(244,247,251,0.09); grid-column: span 1;">
             <h2 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; margin: 0 0 16px;">{{ t.byMethod }}</h2>
             <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -848,7 +852,7 @@
     <div onClick="{{ closePanel }}" style="position: fixed; inset: 0; background: rgba(5,9,18,0.66); backdrop-filter: blur(3px); z-index: 48;"></div>
   </sc-if>
 
-  <aside style="{{ panelStyle }}">
+  <aside data-panel="1" style="{{ panelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ panelTitle }}</span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
@@ -944,7 +948,7 @@
     </div>
   </aside>
 
-  <aside style="{{ groupPanelStyle }}">
+  <aside data-panel="1" style="{{ groupPanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="display: flex; align-items: center; gap: 12px;">
         <span style="width: 36px; height: 36px; border-radius: 999px; flex: none; display: grid; place-items: center; background: rgba(255,107,61,0.18);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></span>
@@ -995,7 +999,7 @@
     </div>
   </aside>
 
-  <aside style="{{ authPanelStyle }}">
+  <aside data-panel="1" style="{{ authPanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ authTitle }}</span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
@@ -1037,7 +1041,7 @@
     </div>
   </aside>
 
-  <aside style="{{ sharePanelStyle }}">
+  <aside data-panel="1" style="{{ sharePanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ t.shareTitle }}</span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
@@ -1052,7 +1056,7 @@
     </div>
   </aside>
 
-  <aside style="{{ recoveryPanelStyle }}">
+  <aside data-panel="1" style="{{ recoveryPanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ t.changePass }}</span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
@@ -1069,7 +1073,7 @@
     </div>
   </aside>
 
-  <aside style="{{ checkoutPanelStyle }}">
+  <aside data-panel="1" style="{{ checkoutPanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ t.checkoutTitle }}</span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
@@ -1130,7 +1134,7 @@
     </div>
   </aside>
 
-  <aside style="{{ payPanelStyle }}">
+  <aside data-panel="1" style="{{ payPanelStyle }}">
     <div style="{{ s.panelHead }}">
       <span style="display: flex; align-items: center; gap: 12px;">
         <span style="width: 36px; height: 36px; border-radius: 999px; flex: none; display: grid; place-items: center; background: rgba(255,107,61,0.18);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h20M2 8v10a2 2 0 002 2h16a2 2 0 002-2V8M2 8l1.5-3.5A2 2 0 015.3 3h13.4a2 2 0 011.8 1.5L22 8M6 15h4"></path></svg></span>
@@ -1486,7 +1490,7 @@ const S = {
   btnGhost: "border: 1.5px solid rgba(244,247,251,0.32); background: rgba(244,247,251,0.04); color: #f4f7fb; cursor: pointer; padding: 9px 15px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; white-space: nowrap;",
   btnSoft: "border: 0; background: rgba(255,107,61,0.16); color: #ff9a72; cursor: pointer; padding: 9px 15px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap;",
   chip: "padding: 8px 14px; border-radius: 999px; background: rgba(244,247,251,0.08); font-size: 12px; color: #c2d0e6; white-space: nowrap;",
-  crumb: "background: none; border: 0; padding: 0; margin-bottom: 24px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; letter-spacing: 0.06em; color: #8fa3c0;",
+  crumb: "display: inline-flex; align-items: center; gap: 8px; background: rgba(244,247,251,0.06); border: 1px solid rgba(244,247,251,0.18); padding: 11px 18px; border-radius: 999px; margin-bottom: 22px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #f4f7fb; min-height: 44px;",
   wm: "white-space: nowrap; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.45em; color: rgba(255,255,255,0.42); text-shadow: 0 1px 3px rgba(4,9,20,0.5); text-align: center;",
   wmSmall: "white-space: nowrap; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.42em; color: rgba(255,255,255,0.46); text-shadow: 0 1px 4px rgba(4,9,20,0.55); text-align: center;",
   input: "border: 1px solid rgba(244,247,251,0.16); background: rgba(244,247,251,0.05); color: #f4f7fb; border-radius: 14px; padding: 13px 15px; font-family: 'DM Sans', sans-serif; font-size: 15px; min-width: 0; max-width: 100%;",
