@@ -33,26 +33,35 @@
   ::-webkit-scrollbar-track { background: rgba(244,247,251,0.05); }
   ::-webkit-scrollbar-thumb { background: #ff6b3d; border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { background: #ff9d3d; }
+  @media (max-width: 620px) {
+    [data-brand-text], [data-lang-code], [data-lang-chevron],
+    [data-user-premium], [data-user-name], [data-bell-label], [data-logout],
+    [data-orders-btn], [data-admin-btn] { display: none !important; }
+    [data-header-actions] { flex-wrap: nowrap !important; gap: 6px !important; min-width: 0 !important; }
+    [data-user-box] { gap: 6px !important; padding: 4px !important; min-width: 0 !important; flex-shrink: 1 !important; overflow: hidden !important; }
+    [data-lang-btn] { padding: 8px 10px !important; gap: 0 !important; }
+    [data-bell-count] { width: 9px !important; height: 9px !important; min-width: 0 !important; padding: 0 !important; font-size: 0 !important; background: #ff6b3d !important; }
+  }
 </style>
 </helmet>
 
 <div style="min-height: 100vh; background: {{ pageBg }}; color: #f4f7fb; font-family: 'DM Sans', system-ui, sans-serif; transition: background 420ms ease;">
 
-  <header style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 16px clamp(14px, 3.5vw, 30px); position: sticky; top: 0; z-index: 30; background: rgba(11,18,32,0.82); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(244,247,251,0.1);">
-    <button type="button" onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit;" style-hover="opacity: 0.75">
-      <span style="height: 30px; width: 62px; flex: none; background-image: url('assets/logo-jrr-blanco.png'); background-size: contain; background-repeat: no-repeat; background-position: left center;"></span>
-      <span style="display: flex; flex-direction: column; gap: 1px; text-align: left;">
+  <header style="display: flex; flex-wrap: nowrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px clamp(12px, 3.5vw, 30px); position: sticky; top: 0; z-index: 30; background: rgba(11,18,32,0.82); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(244,247,251,0.1);">
+    <button type="button" onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; flex: 0 0 auto; min-width: 0;" style-hover="opacity: 0.75">
+      <span style="height: 28px; width: 56px; flex: none; background-image: url('assets/logo-jrr-blanco.png'); background-size: contain; background-repeat: no-repeat; background-position: left center;"></span>
+      <span data-brand-text="1" style="display: flex; flex-direction: column; gap: 1px; text-align: left; white-space: nowrap;">
         <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; line-height: 1;">{{ sig }}</span>
         <span style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #7f95b5;">{{ t.tagline }}</span>
       </span>
     </button>
 
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+    <div data-header-actions="1" style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap; justify-content: flex-end; flex: 1 1 auto; min-width: 0; row-gap: 8px;">
       <div style="position: relative;">
-        <button type="button" onClick="{{ toggleLang }}" style="display: flex; align-items: center; gap: 8px; cursor: pointer; border: 1px solid rgba(244,247,251,0.16); background: rgba(244,247,251,0.06); color: #f4f7fb; padding: 9px 14px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px;" style-hover="border-color: #ff6b3d; color: #ff9a72">
+        <button type="button" data-lang-btn="1" onClick="{{ toggleLang }}" style="display: flex; align-items: center; gap: 8px; cursor: pointer; border: 1px solid rgba(244,247,251,0.16); background: rgba(244,247,251,0.06); color: #f4f7fb; padding: 9px 14px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px;" style-hover="border-color: #ff6b3d; color: #ff9a72">
           <span style="{{ langFlagStyle }}"></span>
-          <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.06em;">{{ langCode }}</span>
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style="opacity: 0.7;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-lang-code="1" style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.06em;">{{ langCode }}</span>
+          <svg data-lang-chevron="1" width="10" height="6" viewBox="0 0 10 6" fill="none" style="opacity: 0.7;"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <sc-if value="{{ langOpen }}" hint-placeholder-val="{{ false }}">
           <div style="position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; min-width: 178px; padding: 6px; border-radius: 18px; background: #101a2d; border: 1px solid rgba(244,247,251,0.14); box-shadow: 0 18px 40px rgba(4,9,20,0.5); display: flex; flex-direction: column; gap: 2px;">
@@ -70,28 +79,38 @@
       </div>
 
       <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
-        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 6px 5px 5px; border-radius: 999px; background: rgba(244,247,251,0.07);">
+        <div data-user-box="1" style="display: flex; align-items: center; gap: 10px; min-width: 0; padding: 5px 6px 5px 5px; border-radius: 999px; background: rgba(244,247,251,0.07);">
           <button type="button" onClick="{{ goProfile }}" style="border: 0; padding: 0; background: none; cursor: pointer;" style-hover="opacity: 0.8">
             <span style="{{ user.avatarStyle }}">{{ user.initials }}</span>
           </button>
           <sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
-            <span style="padding: 5px 11px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ffb03d); color: #14233c; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">{{ t.premium }}</span>
+            <span data-user-premium="1" style="padding: 5px 11px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ffb03d); color: #14233c; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;">{{ t.premium }}</span>
           </sc-if>
-          <span style="display: flex; flex-direction: column; line-height: 1.15; padding-right: 2px; max-width: 130px;">
+          <span data-user-name="1" style="display: flex; flex-direction: column; line-height: 1.15; padding-right: 2px; max-width: 130px;">
             <span style="font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ user.name }}</span>
             <span style="font-size: 11px; color: #8fa3c0;">{{ user.roleLabel }}</span>
           </span>
-          <button type="button" onClick="{{ goNotifs }}" style="{{ bellStyle }}" style-hover="opacity: 0.85">{{ bellLabel }}</button>
+          <button type="button" onClick="{{ goNotifs }}" style="{{ bellStyle }}" style-hover="opacity: 0.85">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"></path></svg>
+            <span data-bell-label="1">{{ t.notifs }}</span>
+            <sc-if value="{{ bellCount }}" hint-placeholder-val="{{ false }}">
+              <span data-bell-count="1" style="{{ bellCountStyle }}">{{ bellCount }}</span>
+            </sc-if>
+          </button>
           <sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
-            <button type="button" onClick="{{ goAdmin }}" style="border: 0; background: rgba(255,107,61,0.16); color: #ff9a72; cursor: pointer; padding: 8px 13px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; white-space: nowrap;" style-hover="background: rgba(255,107,61,0.3)">{{ t.admin }}</button>
+            <button type="button" data-admin-btn="1" onClick="{{ goAdmin }}" style="display: flex; align-items: center; gap: 7px; border: 0; background: rgba(255,107,61,0.16); color: #ff9a72; cursor: pointer; padding: 8px 13px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; white-space: nowrap;" style-hover="background: rgba(255,107,61,0.3)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
+              <span data-admin-label="1">{{ t.admin }}</span>
+            </button>
           </sc-if>
-          <button type="button" onClick="{{ goOrders }}" style="{{ ordersBtnStyle }}" style-hover="background: rgba(255,107,61,0.24); color: #ff9a72">
-            <span>{{ ordersLabel }}</span>
+          <button type="button" data-orders-btn="1" onClick="{{ goOrders }}" style="{{ ordersBtnStyle }}" style-hover="background: rgba(255,107,61,0.24); color: #ff9a72">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M6 2l1.5 4h9L18 2M3.5 6h17l-1.4 13.2a2 2 0 01-2 1.8H6.9a2 2 0 01-2-1.8L3.5 6z"></path></svg>
+            <span data-orders-label="1">{{ ordersLabel }}</span>
             <sc-if value="{{ ordersBadge }}" hint-placeholder-val="{{ false }}">
               <span style="{{ ordersBadgeStyle }}">{{ ordersBadge }}</span>
             </sc-if>
           </button>
-          <button type="button" onClick="{{ logout }}" style="border: 0; background: none; color: #6a7d9c; cursor: pointer; padding: 8px 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; white-space: nowrap;" style-hover="color: #ff9a72">{{ t.logout }}</button>
+          <button type="button" data-logout="1" onClick="{{ logout }}" style="border: 0; background: none; color: #6a7d9c; cursor: pointer; padding: 8px 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; white-space: nowrap;" style-hover="color: #ff9a72">{{ t.logout }}</button>
         </div>
       </sc-if>
       <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
@@ -160,7 +179,10 @@
             {{ sig }}
           </span>
           <button type="button" onClick="{{ goLegal }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #8fa3c0; text-decoration: underline;" style-hover="color: #ff9a72">{{ t.legal }}</button>
-          <button type="button" onClick="{{ goContact }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #8fa3c0; text-decoration: underline;" style-hover="color: #ff9a72">{{ t.contact }}</button>
+          <button type="button" onClick="{{ goContact }}" style="display: flex; align-items: center; gap: 8px; border: 1px solid rgba(244,247,251,0.18); background: rgba(244,247,251,0.05); padding: 9px 16px; border-radius: 999px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; color: #f4f7fb;" style-hover="border-color: #ff6b3d; color: #ff9a72; background: rgba(255,107,61,0.1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+            {{ t.contact }}
+          </button>
         </div>
       </div>
     </sc-if>
@@ -493,8 +515,12 @@
           <button type="button" onClick="{{ changePass }}" style="{{ s.btnP }}" style-hover="filter: brightness(1.08)">{{ t.changePass }}</button>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 22px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px;">
           <button type="button" onClick="{{ goOrders }}" style="{{ s.btnGhost }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ ordersLabel }}</button>
+          <button type="button" onClick="{{ goNotifs }}" style="{{ s.btnGhost }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ bellLabel }}</button>
+          <sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ goAdmin }}" style="{{ s.btnGhost }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ t.admin }}</button>
+          </sc-if>
           <button type="button" onClick="{{ goLegal }}" style="{{ s.btnGhost }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ t.legal }}</button>
           <button type="button" onClick="{{ logout }}" style="{{ s.btnGhost }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ t.logout }}</button>
         </div>
@@ -1294,7 +1320,7 @@ class Component extends DCLogic {
     lang: null, view: "home", groupId: "hamk", albumId: null,
     panel: null, editing: null, toast: "", cartOpen: false,
     groups: [{ id: "hamk", name: "HAMK RUN CLUB", city: "Hämeenlinna", palette: 0, poster: "assets/hamk-run-club-cartel.jpeg", items: [] }],
-    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, dragging: false, ratios: {}, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
+    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, dragging: false, ratios: {}, posterRatios: {}, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
     form: this.blankForm(),
     groupForm: { name: "", city: "", palette: 1, posterFile: null, posterPreview: "" },
     authMode: "login", authForm: { name: "", email: "", pass: "", role: "runner" }, authError: "",
@@ -1968,6 +1994,21 @@ class Component extends DCLogic {
     });
   }
 
+  // El cartel del evento se muestra con su proporción real, sin franjas.
+  medirCartel(url) {
+    if (!url) return;
+    this._cartelesMedidos = this._cartelesMedidos || {};
+    if (this._cartelesMedidos[url]) return;
+    this._cartelesMedidos[url] = true;
+    const im = new Image();
+    im.onload = () => {
+      if (!im.naturalWidth || !im.naturalHeight) return;
+      const r = im.naturalWidth / im.naturalHeight;
+      this.setState(s => ({ posterRatios: Object.assign({}, s.posterRatios, { [url]: r }) }));
+    };
+    im.src = url;
+  }
+
   vigilarScroll() {
     if (this._scroll) return;
     this._scroll = () => {
@@ -1986,6 +2027,10 @@ class Component extends DCLogic {
   componentDidUpdate(prevProps, prevState) {
     const al = this.album();
     if (al && al.media && al.media.length) this.medirRatios(al.media);
+    const g0 = this.group();
+    if (g0 && g0.poster) this.medirCartel(g0.poster);
+    if (this.state.groupForm && this.state.groupForm.posterPreview) this.medirCartel(this.state.groupForm.posterPreview);
+    (this.state.groups || []).forEach(x => { if (x.poster) this.medirCartel(x.poster); });
     if (!prevState || prevState.cart !== this.state.cart) {
       try { localStorage.setItem("jrr-cart", JSON.stringify(this.state.cart)); } catch (e) {}
     }
@@ -2671,7 +2716,9 @@ class Component extends DCLogic {
       noNotifs: notifs.length === 0,
       goNotifs: this.goNotifs,
       bellLabel: actionable.length ? t.notifs + " " + actionable.length : t.notifs,
-      bellStyle: "border: 0; cursor: pointer; padding: 8px 13px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 12px; white-space: nowrap; " + (actionable.length ? "background: linear-gradient(140deg, #ff6b3d, #ffb03d); color: #14233c; font-weight: 700;" : "background: rgba(244,247,251,0.09); color: #d8e3f4;"),
+      bellCount: actionable.length ? String(actionable.length) : "",
+      bellCountStyle: "min-width: 18px; padding: 1px 5px; border-radius: 999px; background: rgba(11,18,32,0.35); font-size: 11px; font-weight: 700;",
+      bellStyle: "display: flex; align-items: center; gap: 7px; border: 0; cursor: pointer; padding: 8px 13px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 12px; white-space: nowrap; " + (actionable.length ? "background: linear-gradient(140deg, #ff6b3d, #ffb03d); color: #14233c; font-weight: 700;" : "background: rgba(244,247,251,0.09); color: #d8e3f4;"),
       isOwner: owner,
       loggedIn: !!user,
       loggedOut: !user,
@@ -2761,7 +2808,10 @@ class Component extends DCLogic {
       groupHeroStyle: "display: flex; flex-wrap: wrap; gap: 26px; align-items: center; justify-content: space-between; padding: clamp(22px, 4vw, 36px) clamp(18px, 3.5vw, 34px); border-radius: 26px; color: #14233c; background: linear-gradient(150deg, " + pal[0] + ", " + pal[1] + "); box-shadow: 0 22px 50px rgba(4,9,20,0.42);",
       hasPoster: !!(g && g.poster),
       heroPosterSrc: (g && g.poster) || "",
-      heroPosterStyle: "width: min(200px, 42vw); aspect-ratio: 3 / 4; border-radius: 18px; flex: none; background-image: url('" + ((g && g.poster) || "") + "'); background-size: contain; background-repeat: no-repeat; background-position: center; box-shadow: 0 14px 32px rgba(4,9,20,0.35);",
+      heroPosterStyle: "width: min(200px, 42vw); aspect-ratio: " +
+        (((this.state.posterRatios || {})[(g && g.poster) || ""] || 0.75).toFixed(3)) +
+        "; border-radius: 18px; flex: none; overflow: hidden; background-image: url('" + ((g && g.poster) || "") +
+        "'); background-size: cover; background-position: center; box-shadow: 0 14px 32px rgba(4,9,20,0.35);",
       priceLabel: t.priceInfo.replace("{p}", money(pp)).replace("{v}", money(pv)),
       galleryDaysLabel: t.galleryDays.replace("{n}", Number(this.props.galleryDays ?? 15)),
       items: cards,
@@ -2970,7 +3020,9 @@ class Component extends DCLogic {
       groupPanelTitle: this.state.groupEditing ? t.editGroup : t.newGroup,
       groupSaveLabel: this.state.groupEditing ? t.saveChangesShort : t.saveGroup,
       groupPosterPreview: this.state.groupForm.posterPreview,
-      groupPosterStyle: "height: 170px; border-radius: 18px; background-color: rgba(244,247,251,0.06); background-image: url('" + (this.state.groupForm.posterPreview || "") + "'); background-size: contain; background-repeat: no-repeat; background-position: center;", openAuth: this.openAuth, closePanel: this.closePanel,
+      groupPosterStyle: "width: 100%; max-width: 260px; aspect-ratio: " +
+        (((this.state.posterRatios || {})[this.state.groupForm.posterPreview || ""] || 0.75).toFixed(3)) +
+        "; border-radius: 18px; overflow: hidden; background-color: rgba(244,247,251,0.06); background-image: url('" + (this.state.groupForm.posterPreview || "") + "'); background-size: covtain; background-repeat: no-repeat; background-position: center;", openAuth: this.openAuth, closePanel: this.closePanel,
       toggleCart: this.toggleCart, startCheckout: this.startCheckout, placeOrder: this.placeOrder,
       logout: this.logout, submitAuth: this.submitAuth, forgotPass: this.forgotPass,
       setModeLogin: () => this.setState({ authMode: "login", authError: "" }),
