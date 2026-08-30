@@ -270,22 +270,28 @@
       return error ? { error: error.message } : { ok: true };
     },
 
-    // Ajustes globales (precios y packs) compartidos por todos los compradores.
+    // Ajustes: una fila por ámbito ('app' y 'group:<id>'). Devuelve el mapa entero.
     async getSettings() {
       if (!live) {
-        try { return { data: JSON.parse(localStorage.getItem("jrr-settings") || "null") }; } catch (e) { return { data: null }; }
+        try { return { data: JSON.parse(localStorage.getItem("jrr-settings") || "{}") }; } catch (e) { return { data: {} }; }
       }
-      const { data, error } = await sb.from("settings").select("value").eq("id", "app").maybeSingle();
+      const { data, error } = await sb.from("settings").select("id,value");
       if (error) return { error: error.message, data: null };
-      return { data: (data && data.value) || null };
+      const mapa = {};
+      (data || []).forEach(r => { mapa[r.id] = r.value || {}; });
+      return { data: mapa };
     },
 
-    async saveSettings(value) {
+    async saveSettings(id, value) {
       if (!live) {
-        try { localStorage.setItem("jrr-settings", JSON.stringify(value)); } catch (e) {}
+        try {
+          const prev = JSON.parse(localStorage.getItem("jrr-settings") || "{}");
+          prev[id] = value;
+          localStorage.setItem("jrr-settings", JSON.stringify(prev));
+        } catch (e) {}
         return { ok: true };
       }
-      const { error } = await sb.from("settings").upsert({ id: "app", value });
+      const { error } = await sb.from("settings").upsert({ id, value });
       return error ? { error: error.message } : { ok: true };
     },
 
