@@ -34,6 +34,11 @@
   ::-webkit-scrollbar-track { background: rgba(244,247,251,0.05); }
   ::-webkit-scrollbar-thumb { background: #ff6b3d; border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { background: #ff9d3d; }
+  @media (max-width: 980px) {
+    [data-brand-text], [data-user-premium], [data-user-name], [data-logout] { display: none !important; }
+    [data-header-actions] { flex-wrap: nowrap !important; min-width: 0 !important; }
+    [data-user-box] { min-width: 0 !important; flex-shrink: 1 !important; }
+  }
   @media (max-width: 620px) {
     [data-brand-text], [data-lang-code], [data-lang-chevron],
     [data-user-premium], [data-user-name], [data-bell-label], [data-logout],
@@ -1513,6 +1518,7 @@ class Component extends DCLogic {
   blankForm() { return { date: "", name: "", km: "", pricePhoto: null, priceVideo: null, published: true, media: [] }; }
 
   componentWillUnmount() {
+    if (this._offAuth) this._offAuth();
     clearInterval(this._poll);
     clearTimeout(this._toast);
   }
@@ -1582,7 +1588,17 @@ class Component extends DCLogic {
         }, 600);
       }
     } catch (e) {}
-    this._poll = setInterval(() => { if (this.state.user) this.refrescarTodo(); }, 20000);
+    this._poll = setInterval(() => this.refrescarTodo(), 20000);
+
+    // Si Supabase rehidrata la sesión más tarde, se recarga con el usuario ya puesto.
+    const api2 = window.JRRData;
+    if (api2 && api2.onAuthChange) {
+      this._offAuth = api2.onAuthChange((evento, usuario) => {
+        const tenia = !!this.state.user;
+        if (usuario && !tenia) api2.load().then(d => this.hydrate(d)).catch(() => {});
+        if (!usuario && tenia && evento === "SIGNED_OUT") this.setState({ user: null });
+      });
+    }
     if (api) {
       api.load().then(d => this.hydrate(d)).catch(() => {});
       return;
@@ -1635,7 +1651,7 @@ class Component extends DCLogic {
         const selLimpia = puedeDepurar ? s.sel.filter(k => clavesVivas[k]) : s.sel;
         this._quitadas = s.cart.length - cartLimpio.length;
         return {
-          users: d.users || [], user: d.user || null,
+          users: d.users || [], user: d.user || (live ? s.user : null),
           orders: (d.orders && d.orders.length) ? d.orders : s.orders,
           notifs: (d.notifs && d.notifs.length) ? d.notifs : s.notifs,
           groups, groupId: gid,
@@ -2408,6 +2424,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    if (this._offAuth) this._offAuth();
     if (this._noOpen) { window.removeEventListener("dragover", this._noOpen); window.removeEventListener("drop", this._noOpen); }
     if (this._scroll) window.removeEventListener("scroll", this._scroll);
     if (this._poll) clearInterval(this._poll);

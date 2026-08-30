@@ -25,6 +25,16 @@
 
     async init() { return API.mode; },
 
+    // Avisa cuando Supabase rehidrata o cambia la sesión, para que la app no se
+    // quede con el usuario a null por una carrera al arrancar.
+    onAuthChange(cb) {
+      if (!live || typeof cb !== "function") return () => {};
+      const { data } = sb.auth.onAuthStateChange((evento, sesion) => {
+        cb(evento, sesion && sesion.user ? sesion.user : null);
+      });
+      return () => { try { data.subscription.unsubscribe(); } catch (e) {} };
+    },
+
     async load() {
       if (!live) {
         const d = readLocal();
