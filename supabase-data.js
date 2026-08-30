@@ -270,6 +270,27 @@
       return error ? { error: error.message } : { ok: true };
     },
 
+    // ¿Existe la tabla de consentimientos? Se sondea para avisar al fotógrafo.
+    async consentsOk() {
+      if (!live) return { ok: true };
+      const { error } = await sb.from("consents").select("id").limit(1);
+      return { ok: !error, error: error && error.message };
+    },
+
+    // Registro del consentimiento de imagen (si la tabla no existe, no falla).
+    async saveConsent({ groupId, email, name }) {
+      if (!live) return { ok: true };
+      const { data: who } = await sb.auth.getUser();
+      const uid = (who && who.user && who.user.id) || null;
+      const { error } = await sb.from("consents").insert({
+        group_id: groupId && String(groupId).length > 20 ? groupId : null,
+        user_id: uid,
+        email: email || (who && who.user && who.user.email) || null,
+        name: name || null
+      });
+      return error ? { error: error.message } : { ok: true };
+    },
+
     async deleteMedia(mediaId) {
       if (!live) return { ok: true };
       const { data: m } = await sb.from("media").select("original_path,preview_path").eq("id", mediaId).single();
