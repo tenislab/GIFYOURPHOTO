@@ -605,7 +605,7 @@
         <div style="display: flex; flex-direction: column; gap: 18px; padding: 24px; border-radius: 24px; background: #131f34; border: 1px solid rgba(244,247,251,0.09);">
           <label style="{{ s.field }}">
             {{ t.newPass }}
-            <input type="password" placeholder="••••••" value="{{ newPass }}" onChange="{{ setNewPass }}" style="{{ s.input }}">
+            <input type="password" name="new-password" autoComplete="new-password" placeholder="••••••" value="{{ newPass }}" onChange="{{ setNewPass }}" style="{{ s.input }}">
           </label>
           <button type="button" onClick="{{ changePass }}" style="{{ s.btnP }}" style-hover="filter: brightness(1.08)">{{ t.changePass }}</button>
         </div>
@@ -1012,16 +1012,19 @@
       </sc-if>
       <label style="{{ s.field }}">
         {{ authEmailLabel }}
-        <input type="text" placeholder="tu@email.com" value="{{ authForm.email }}" onChange="{{ setAuthEmail }}" style="{{ s.input }}">
+        <input type="email" name="email" autoComplete="username" placeholder="tu@email.com" value="{{ authForm.email }}" onChange="{{ setAuthEmail }}" style="{{ s.input }}">
       </label>
       <label style="{{ s.field }}">
         {{ t.aPass }}
-        <input type="password" placeholder="••••••" value="{{ authForm.pass }}" onChange="{{ setAuthPass }}" style="{{ s.input }}">
+        <input type="password" name="password" autoComplete="current-password" placeholder="••••••" value="{{ authForm.pass }}" onChange="{{ setAuthPass }}" style="{{ s.input }}">
       </label>
       <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
         <p style="margin: 0; font-size: 13px; color: #ff9a72;">{{ authError }}</p>
       </sc-if>
-      <button type="button" onClick="{{ forgotPass }}" style="align-self: flex-start; border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #ff9a72; text-decoration: underline;" style-hover="color: #ffc178">{{ t.forgot }}</button>
+      <button type="button" onClick="{{ forgotPass }}" style="display: flex; align-items: center; gap: 9px; width: 100%; border: 1px solid rgba(244,247,251,0.18); background: rgba(244,247,251,0.05); padding: 13px 16px; border-radius: 16px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #d8e3f4; text-align: left;" style-hover="border-color: #ff6b3d; color: #ff9a72">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M21 2v6h-6M3 12a9 9 0 0115-6.7L21 8M3 22v-6h6M21 12a9 9 0 01-15 6.7L3 16"></path></svg>
+        {{ t.forgot }}
+      </button>
       <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #7f95b5;">{{ t.authNote }}</p>
     </div>
     <div style="{{ s.panelFoot }}">
@@ -1053,7 +1056,7 @@
       <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #a9bad4;">{{ t.recoveryNote }}</p>
       <label style="{{ s.field }}">
         {{ t.newPass }}
-        <input type="password" placeholder="••••••" value="{{ newPass }}" onChange="{{ setNewPass }}" style="{{ s.input }}">
+        <input type="password" name="new-password" autoComplete="new-password" placeholder="••••••" value="{{ newPass }}" onChange="{{ setNewPass }}" style="{{ s.input }}">
       </label>
     </div>
     <div style="{{ s.panelFoot }}">
@@ -3589,7 +3592,7 @@ class Component extends DCLogic {
       groupPosterPreview: this.state.groupForm.posterPreview,
       groupPosterStyle: "width: 100%; max-width: 260px; aspect-ratio: " +
         (((this.state.posterRatios || {})[this.state.groupForm.posterPreview || ""] || 0.75).toFixed(3)) +
-        "; border-radius: 18px; overflow: hidden; background-color: rgba(244,247,251,0.06); background-image: url('" + (this.state.groupForm.posterPreview || "") + "'); background-size: covtain; background-repeat: no-repeat; background-position: center;", openAuth: this.openAuth, closePanel: this.closePanel,
+        "; border-radius: 18px; overflow: hidden; background-color: rgba(244,247,251,0.06); background-image: url('" + (this.state.groupForm.posterPreview || "") + "'); background-size: contain; background-repeat: no-repeat; background-position: center;", openAuth: this.openAuth, closePanel: this.closePanel,
       toggleCart: this.toggleCart, startCheckout: this.startCheckout, placeOrder: this.placeOrder,
       logout: this.logout, submitAuth: this.submitAuth, forgotPass: this.forgotPass,
       setModeLogin: () => this.setState({ authMode: "login", authError: "" }),
