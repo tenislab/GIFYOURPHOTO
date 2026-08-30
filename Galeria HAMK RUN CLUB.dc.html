@@ -26,6 +26,11 @@
   input:focus-visible, button:focus-visible, label:focus-visible { outline: 3px solid #ff6b3d; outline-offset: 2px; }
   @keyframes floatUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   @keyframes popIn { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+  * { scrollbar-color: #ff6b3d rgba(244,247,251,0.06); scrollbar-width: thin; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: rgba(244,247,251,0.05); }
+  ::-webkit-scrollbar-thumb { background: #ff6b3d; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #ff9d3d; }
 </style>
 </helmet>
 
@@ -134,7 +139,10 @@
           </sc-if>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding-top: 26px; border-top: 1px solid rgba(244,247,251,0.1); font-size: 13px; color: #7f95b5;">
-          <span>{{ sig }}</span>
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 22px; height: 22px; border-radius: 7px; flex: none; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.14);"></span>
+            {{ sig }}
+          </span>
           <button type="button" onClick="{{ goLegal }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #8fa3c0; text-decoration: underline;" style-hover="color: #ff9a72">{{ t.legal }}</button>
           <button type="button" onClick="{{ goContact }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #8fa3c0; text-decoration: underline;" style-hover="color: #ff9a72">{{ t.contact }}</button>
         </div>
@@ -190,7 +198,7 @@
             </div>
           </div>
           <sc-if value="{{ hasPoster }}" hint-placeholder-val="{{ false }}">
-            <img src="{{ heroPosterSrc }}" alt="" style="{{ heroPosterStyle }}">
+            <div style="{{ heroPosterStyle }}"></div>
           </sc-if>
         </div>
 
@@ -470,7 +478,8 @@
           <p style="margin: 0 0 20px; padding: 16px 18px; border-radius: 18px; background: rgba(255,176,61,0.14); font-size: 14px; line-height: 1.55; color: #ffc178; max-width: 680px;">{{ notifsWarning }}</p>
         </sc-if>
         <sc-if value="{{ noNotifs }}" hint-placeholder-val="{{ true }}">
-          <div style="padding: 56px 30px; border-radius: 26px; border: 2px dashed rgba(244,247,251,0.16); max-width: 620px;">
+          <div style="padding: 56px 30px; border-radius: 26px; border: 2px dashed rgba(244,247,251,0.16); max-width: 620px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
+            <span style="width: 46px; height: 46px; border-radius: 999px; display: grid; place-items: center; background: rgba(244,247,251,0.06);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#7f95b5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"></path></svg></span>
             <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #a9bad4;">{{ t.notifsEmpty }}</p>
           </div>
         </sc-if>
@@ -478,7 +487,9 @@
         <div style="display: flex; flex-direction: column; gap: 14px; max-width: 860px;">
           <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="2">
             <div style="{{ n.cardStyle }}">
-              <span style="{{ n.dotStyle }}"></span>
+              <span style="{{ n.iconBg }}">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ n.iconColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.iconPath }}"></path></svg>
+              </span>
               <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 200px;">
                 <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.01em;">{{ n.title }}</span>
                 <span style="font-size: 14px; line-height: 1.55; color: #a9bad4; text-wrap: pretty;">{{ n.body }}</span>
@@ -510,7 +521,8 @@
         </div>
 
         <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}">
-          <div style="padding: 56px 30px; border-radius: 26px; border: 2px dashed rgba(244,247,251,0.16); max-width: 620px;">
+          <div style="padding: 56px 30px; border-radius: 26px; border: 2px dashed rgba(244,247,251,0.16); max-width: 620px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
+            <span style="width: 46px; height: 46px; border-radius: 999px; display: grid; place-items: center; background: rgba(244,247,251,0.06);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#7f95b5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1.5 4h9L18 2M3.5 6h17l-1.4 13.2a2 2 0 01-2 1.8H6.9a2 2 0 01-2-1.8L3.5 6z"></path></svg></span>
             <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #a9bad4;">{{ t.ordersEmpty }}</p>
           </div>
         </sc-if>
@@ -740,7 +752,10 @@
 
   <aside style="{{ groupPanelStyle }}">
     <div style="{{ s.panelHead }}">
-      <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ groupPanelTitle }}</span>
+      <span style="display: flex; align-items: center; gap: 12px;">
+        <span style="width: 36px; height: 36px; border-radius: 999px; flex: none; display: grid; place-items: center; background: rgba(255,107,61,0.18);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></span>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ groupPanelTitle }}</span>
+      </span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
     </div>
     <div style="{{ s.panelBody }}">
@@ -920,7 +935,10 @@
 
   <aside style="{{ payPanelStyle }}">
     <div style="{{ s.panelHead }}">
-      <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ t.howToPay }}</span>
+      <span style="display: flex; align-items: center; gap: 12px;">
+        <span style="width: 36px; height: 36px; border-radius: 999px; flex: none; display: grid; place-items: center; background: rgba(255,107,61,0.18);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h20M2 8v10a2 2 0 002 2h16a2 2 0 002-2V8M2 8l1.5-3.5A2 2 0 015.3 3h13.4a2 2 0 011.8 1.5L22 8M6 15h4"></path></svg></span>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em;">{{ t.howToPay }}</span>
+      </span>
       <button type="button" onClick="{{ closePanel }}" style="{{ s.closeBtn }}" style-hover="background: rgba(255,107,61,0.24)">✕</button>
     </div>
     <div style="{{ s.panelBody }}">
@@ -2111,13 +2129,13 @@ class Component extends DCLogic {
           selStyle: "position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 999px; border: 2px solid rgba(244,247,251,0.6); cursor: pointer; display: grid; place-items: center; font-size: 14px; z-index: 2; " + (this.state.sel.indexOf(key) > -1 ? "background: #ff6b3d; color: #14233c; border-color: #ff6b3d;" : "background: rgba(11,18,32,0.6); color: transparent;"),
           tileStyle: tile(m, i),
           noPreview: !m.url,
-          nameLabel: m.name || "",
+          nameLabel: (m.kind === "video" ? t.video : t.photo) + " " + (i + 1),
           kindLabel: m.kind === "video" ? t.video : t.photo,
           priceLabel: money(this.priceOf(al, m.kind)),
           btnLabel: inCart ? t.inCart : t.add,
           btnStyle: inCart
             ? "border: 0; background: rgba(98,210,196,0.2); color: #62d2c4; cursor: pointer; padding: 9px 15px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap;"
-            : S.btnSoft,
+            : "border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ff9d3d); color: #14233c; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; white-space: nowrap; box-shadow: 0 6px 16px rgba(255,107,61,0.32);",
           action: inCart ? this.removeFromCart(key) : this.addToCart(g.id, al.id, m.id)
         };
       })
@@ -2170,6 +2188,13 @@ class Component extends DCLogic {
         accept: this.acceptPayment(n.orderId, n.id),
         download: this.downloadOrder(n.orderId),
         dotStyle: "width: 12px; height: 12px; border-radius: 999px; flex: none; margin-top: 6px; background: " + (liveNotif ? "#ff6b3d" : "#62d2c4") + ";",
+        iconBg: "width: 40px; height: 40px; border-radius: 999px; flex: none; display: grid; place-items: center; background: " + (n.type === "claim" ? "rgba(255,176,61,0.16)" : n.type === "sale" ? "rgba(98,210,196,0.16)" : "rgba(255,107,61,0.16)") + ";",
+        iconColor: n.type === "claim" ? "#ffc178" : n.type === "sale" ? "#62d2c4" : "#ff9a72",
+        iconPath: n.type === "claim"
+          ? "M12 8v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          : n.type === "sale"
+          ? "M3 7h18M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l2.2-3.6A2 2 0 017 2.5h10a2 2 0 011.8.9L21 7M8 11h8"
+          : "M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2",
         tagLabel: n.type === "claim" ? (n.handled ? t.paid : t.pending) : t.readyTag,
         tagStyle: "padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; " + (n.type === "claim" && !n.handled ? "background: rgba(255,176,61,0.18); color: #ffc178;" : "background: rgba(98,210,196,0.18); color: #62d2c4;"),
         cardStyle: "border-radius: 22px; background: #131f34; padding: 20px 22px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; border: 1px solid " + (liveNotif ? "rgba(255,107,61,0.42)" : "rgba(244,247,251,0.09)") + ";"
@@ -2371,7 +2396,7 @@ class Component extends DCLogic {
       groupHeroStyle: "display: flex; flex-wrap: wrap; gap: 26px; align-items: center; justify-content: space-between; padding: clamp(22px, 4vw, 36px) clamp(18px, 3.5vw, 34px); border-radius: 26px; color: #14233c; background: linear-gradient(150deg, " + pal[0] + ", " + pal[1] + "); box-shadow: 0 22px 50px rgba(4,9,20,0.42);",
       hasPoster: !!(g && g.poster),
       heroPosterSrc: (g && g.poster) || "",
-      heroPosterStyle: "width: min(200px, 42vw); max-height: 320px; height: auto; border-radius: 18px; flex: none; object-fit: contain; box-shadow: 0 14px 32px rgba(4,9,20,0.35); display: block;",
+      heroPosterStyle: "width: min(200px, 42vw); aspect-ratio: 3 / 4; border-radius: 18px; flex: none; background-image: url('" + ((g && g.poster) || "") + "'); background-size: contain; background-repeat: no-repeat; background-position: center; box-shadow: 0 14px 32px rgba(4,9,20,0.35);",
       priceLabel: t.priceInfo.replace("{p}", money(pp)).replace("{v}", money(pv)),
       galleryDaysLabel: t.galleryDays.replace("{n}", Number(this.props.galleryDays ?? 15)),
       items: cards,
@@ -2552,7 +2577,7 @@ class Component extends DCLogic {
         return {
           imgStyle: "flex: 1; min-height: 0; border-radius: 22px; background-color: #0b1220; " + (m.url ? "background-image: url('" + m.url + "'); background-size: contain; background-repeat: no-repeat; background-position: center;" : "background-image: repeating-linear-gradient(-45deg, rgba(244,247,251,0.09) 0 12px, rgba(244,247,251,0.02) 12px 24px);"),
           counter: (i + 1) + " / " + al.media.length,
-          name: m.name || "",
+          name: (m.kind === "video" ? t.video : t.photo) + " " + (i + 1),
           price: money(this.priceOf(al, m.kind)),
           btnLabel: inCart ? t.inCart : t.add,
           btnStyle: inCart
