@@ -1810,13 +1810,19 @@ class Component extends DCLogic {
     const p = perfiles[tipo] || perfiles.pena;
     const red = (x) => Math.max(0.5, Math.round(x * 2) / 2);
 
-    const tiers = [
+    // Cada escalón debe tener más fotos Y costar más que el anterior; si no,
+    // el pequeño no tiene sentido (misma pasta por menos fotos).
+    const crudos = [
       { name: "SPRINT", n: Math.max(3, Math.round(fpp * 0.5)), f: 0.6 },
-      { name: "PLUS", n: Math.max(4, fpp), f: 0.5 },
-      { name: "PREMIUM", n: Math.max(6, Math.round(fpp * 1.5)), f: 0.42 }
-    ].map(x => {
-      const precio = red(p.suelta * x.n * x.f);
-      return { name: x.name, n: x.n, precio, unidad: Math.round((precio / x.n) * 100) / 100 };
+      { name: "PLUS", n: Math.max(5, fpp), f: 0.5 },
+      { name: "PREMIUM", n: Math.max(8, Math.round(fpp * 1.6)), f: 0.42 }
+    ];
+    const tiers = [];
+    crudos.forEach((x, i) => {
+      const prev = tiers[i - 1];
+      const n = prev ? Math.max(x.n, prev.n + 2) : x.n;
+      const precio = Math.max(red(p.suelta * n * x.f), prev ? prev.precio + 0.5 : 0.5);
+      tiers.push({ name: x.name, n, precio, unidad: Math.round((precio / n) * 100) / 100 });
     });
 
     const medio = tiers[1].precio;
