@@ -270,6 +270,25 @@
       return error ? { error: error.message } : { ok: true };
     },
 
+    // Ajustes globales (precios y packs) compartidos por todos los compradores.
+    async getSettings() {
+      if (!live) {
+        try { return { data: JSON.parse(localStorage.getItem("jrr-settings") || "null") }; } catch (e) { return { data: null }; }
+      }
+      const { data, error } = await sb.from("settings").select("value").eq("id", "app").maybeSingle();
+      if (error) return { error: error.message, data: null };
+      return { data: (data && data.value) || null };
+    },
+
+    async saveSettings(value) {
+      if (!live) {
+        try { localStorage.setItem("jrr-settings", JSON.stringify(value)); } catch (e) {}
+        return { ok: true };
+      }
+      const { error } = await sb.from("settings").upsert({ id: "app", value });
+      return error ? { error: error.message } : { ok: true };
+    },
+
     // ¿Existe la tabla de consentimientos? Se sondea para avisar al fotógrafo.
     async consentsOk() {
       if (!live) return { ok: true };
