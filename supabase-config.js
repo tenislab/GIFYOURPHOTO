@@ -6,7 +6,8 @@ window.JRR_SUPABASE = {
 
 // Datos de cobro que se muestran en las instrucciones de pago.
 window.JRR_PAY = {
-  revolut: "@jaimerivas",
+  revolut: "@jrrjaime",
+  revolutUrl: "https://revolut.me/jrrjaime",
   iban: "ES55 0182 5332 1800 0179 4028",
   bic: "BBVAESMM",
   holder: "Jaime Rivas Reinoso",
