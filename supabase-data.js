@@ -358,14 +358,17 @@
         const f = item.file;
         if (!f) continue;
         avisar(f.name);
+        // Cada archivo va en su propio try: si uno revienta (red, memoria,
+        // formato raro), los demás siguen subiendo.
+        try {
         const kind = f.type.indexOf("video") === 0 ? "video" : "photo";
         const safe = f.name.replace(/[^\w.\-]/g, "_");
         const base = a.id + "/" + Date.now() + "-" + position + "-" + safe;
 
-        // Un reintento si la subida falla (red intermitente en la calle).
+        // Dos reintentos si la subida falla (red intermitente en la calle).
         let upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
-        if (upOriginal.error) {
-          await new Promise(r => setTimeout(r, 800));
+        for (let intento = 0; intento < 2 && upOriginal.error; intento++) {
+          await new Promise(r => setTimeout(r, 900 * (intento + 1)));
           upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
         }
         if (upOriginal.error) { fallidos.push(f.name); hechos++; avisar(f.name); continue; }
@@ -374,18 +377,21 @@
         // la Edge Function watermark la reescriba incrustada en el píxel.
         let previewPath = null;
         if (item.preview) {
-          const blob = await (await fetch(item.preview)).blob();
-          const pPath = base.replace(/\.[^.]+$/, "") + "-preview.jpg";
-          const upPreview = await sb.storage.from("previews").upload(pPath, blob, {
-            contentType: "image/jpeg", upsert: true
-          });
-          if (!upPreview.error) previewPath = pPath;
+          try {
+            const blob = await (await fetch(item.preview)).blob();
+            const pPath = base.replace(/\.[^.]+$/, "") + "-preview.jpg";
+            const upPreview = await sb.storage.from("previews").upload(pPath, blob, {
+              contentType: "image/jpeg", upsert: true
+            });
+            if (!upPreview.error) previewPath = pPath;
+          } catch (e) { /* sin preview, pero el original ya está guardado */ }
         }
 
-        const { data: inserted } = await sb.from("media").insert({
+        const { data: inserted, error: errIns } = await sb.from("media").insert({
           album_id: a.id, kind, original_path: base, preview_path: previewPath,
           file_name: f.name, bytes: f.size, position: position++
         }).select("id").single();
+        if (errIns) { fallidos.push(f.name); hechos++; avisar(f.name); continue; }
 
         // Marca de agua incrustada: reescribe la preview dentro del píxel.
         if (inserted && kind === "photo") {
@@ -395,8 +401,13 @@
         }
         hechos++;
         avisar(f.name);
+        } catch (e) {
+          fallidos.push(f.name);
+          hechos++;
+          avisar(f.name);
+        }
       }
-      return { id: a.id, failed: fallidos };
+      return { id: a.id, failed: fallidos, uploaded: total - fallidos.length, total };
     },
 
     // Emails (Edge Function notify). Falla en silencio si no está desplegada.
