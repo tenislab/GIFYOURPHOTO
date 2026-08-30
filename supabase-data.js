@@ -312,7 +312,7 @@
       return API.saveGroup({ name, city, palette: 0 });
     },
 
-    async saveAlbum(groupId, album, files) {
+    async saveAlbum(groupId, album, files, onProgress) {
       if (!live) return { ok: true };
       if (!groupId || String(groupId).length < 20) {
         const g = await API.ensureGroup("HAMK RUN CLUB", "Hämeenlinna");
@@ -327,15 +327,27 @@
       if (error) return { error: error.message };
 
       let position = 0;
+      const fallidos = [];
+      const total = (files || []).length;
+      let hechos = 0;
+      const avisar = (nombre) => {
+        if (typeof onProgress === "function") onProgress({ done: hechos, total, name: nombre });
+      };
       for (const item of (files || [])) {
         const f = item.file;
         if (!f) continue;
+        avisar(f.name);
         const kind = f.type.indexOf("video") === 0 ? "video" : "photo";
         const safe = f.name.replace(/[^\w.\-]/g, "_");
         const base = a.id + "/" + Date.now() + "-" + position + "-" + safe;
 
-        const upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
-        if (upOriginal.error) continue;
+        // Un reintento si la subida falla (red intermitente en la calle).
+        let upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
+        if (upOriginal.error) {
+          await new Promise(r => setTimeout(r, 800));
+          upOriginal = await sb.storage.from("originals").upload(base, f, { upsert: true });
+        }
+        if (upOriginal.error) { fallidos.push(f.name); hechos++; avisar(f.name); continue; }
 
         // Preview visible: la versión reducida con marca de agua CSS hasta que
         // la Edge Function watermark la reescriba incrustada en el píxel.
@@ -360,8 +372,10 @@
             body: { media_id: inserted.id, original_path: base }
           }).catch(() => {});
         }
+        hechos++;
+        avisar(f.name);
       }
-      return { id: a.id };
+      return { id: a.id, failed: fallidos };
     },
 
     // Emails (Edge Function notify). Falla en silencio si no está desplegada.
