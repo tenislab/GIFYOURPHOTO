@@ -1648,7 +1648,7 @@ class Component extends DCLogic {
   removeFromCart = (key) => () => this.setState(s => ({ cart: s.cart.filter(c => c.key !== key) }));
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.cart !== this.state.cart) {
+    if (!prevState || prevState.cart !== this.state.cart) {
       try { localStorage.setItem("jrr-cart", JSON.stringify(this.state.cart)); } catch (e) {}
     }
   }
@@ -2449,6 +2449,8 @@ class Component extends DCLogic {
         priceVideo: this.state.form.priceVideo == null ? pv : this.state.form.priceVideo
       },
       groupForm: { name: this.state.groupForm.name, city: this.state.groupForm.city, accent: this.state.groupForm.accent || "#ff6b3d", hasAccent: !!this.state.groupForm.accent },
+      setGroupName: this.setGroupField("name"),
+      setGroupCity: this.setGroupField("city"),
       clearGroupAccent: () => this.setState(s => ({ groupForm: Object.assign({}, s.groupForm, { accent: "" }) })),
       setGroupAccent: (e) => { const v = e.target.value; this.setState(s => ({ groupForm: Object.assign({}, s.groupForm, { accent: v }) })); },
       swatches: SWATCHES.map((p, i) => ({
@@ -2481,7 +2483,7 @@ class Component extends DCLogic {
       roleOwnerStyle: this.state.authForm.role === "owner" ? SEG_ON : SEG_OFF,
       authForm: { name: this.state.authForm.name, email: this.state.authForm.email, pass: this.state.authForm.pass },
       authError: this.state.authError,
-      authEmailLabel: this.state.authMode === "register" ? t.aEmail : t.authUser,
+      authEmailLabel: t.aEmail,
       toast: this.state.toast,
       goHome: this.goHome, goOrders: this.goOrders, backToGroup: this.backToGroup,
       goProfile: this.goProfile, changePass: this.changePass,
