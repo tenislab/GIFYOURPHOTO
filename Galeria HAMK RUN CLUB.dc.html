@@ -40,8 +40,7 @@
 
   <header style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 16px clamp(14px, 3.5vw, 30px); position: sticky; top: 0; z-index: 30; background: rgba(11,18,32,0.82); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(244,247,251,0.1);">
     <button type="button" onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit;" style-hover="opacity: 0.75">
-      <span style="width: 42px; height: 42px; border-radius: 13px; flex: none; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.14);"></span>
-      <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em;">{{ sig }}</span>
+      <span style="height: 30px; width: 62px; flex: none; background-image: url('assets/logo-jrr-blanco.png'); background-size: contain; background-repeat: no-repeat; background-position: left center;"></span>
     </button>
 
     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
@@ -153,7 +152,7 @@
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding-top: 26px; border-top: 1px solid rgba(244,247,251,0.1); font-size: 13px; color: #7f95b5;">
           <span style="display: flex; align-items: center; gap: 8px;">
-            <span style="width: 22px; height: 22px; border-radius: 7px; flex: none; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.14);"></span>
+            <span style="width: 46px; height: 22px; flex: none; opacity: 0.75; background-image: url('assets/logo-jrr-blanco.png'); background-size: contain; background-repeat: no-repeat; background-position: center;"></span>
             {{ sig }}
           </span>
           <button type="button" onClick="{{ goLegal }}" style="border: 0; background: none; padding: 0; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #8fa3c0; text-decoration: underline;" style-hover="color: #ff9a72">{{ t.legal }}</button>
@@ -255,7 +254,9 @@
                     <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #62d2c4;">{{ it.dateLabel }}</div>
                     <h3 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 23px; line-height: 1.12; margin: 0; letter-spacing: -0.02em;">{{ it.name }}</h3>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                      <span style="{{ s.chip }}">{{ it.kmLabel }}</span>
+                      <sc-if value="{{ it.kmLabel }}" hint-placeholder-val="{{ false }}">
+                        <span style="{{ s.chip }}">{{ it.kmLabel }}</span>
+                      </sc-if>
                       <span style="{{ s.chip }}">{{ it.photoLabel }}</span>
                       <span style="{{ s.chip }}">{{ it.videoLabel }}</span>
                     </div>
@@ -727,7 +728,7 @@
           <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px;">{{ t.dropTitle }}</span>
           <span style="font-size: 13px; color: #8fa3c0;">{{ dropCount }}</span>
         </label>
-        <input id="f-files" type="file" multiple="{{ true }}" accept="image/*,video/*,.heic,.heif,.mov" onChange="{{ addFiles }}">
+        <input id="f-files" type="file" multiple="{{ true }}" accept="image/*,video/*,.heic,.heif,.hif,.mov,.dng,.raw,.arw,.cr2,.cr3,.nef,.nrw,.orf,.raf,.rw2,.pef,.srw,.tif,.tiff" onChange="{{ addFiles }}">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
           <sc-for list="{{ formMedia }}" as="fm" hint-placeholder-count="0">
             <span style="display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; border-radius: 999px; background: rgba(244,247,251,0.07); font-size: 12px; max-width: 100%;">
@@ -829,7 +830,7 @@
     </div>
     <div style="{{ s.panelBody }}">
       <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 0 2px;">
-        <span style="width: 58px; height: 58px; border-radius: 999px; flex: none; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.16); box-shadow: 0 14px 30px rgba(4,9,20,0.4);"></span>
+        <span style="width: 108px; height: 52px; flex: none; background-image: url('assets/logo-jrr-blanco.png'); background-size: contain; background-repeat: no-repeat; background-position: center;"></span>
         <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; text-align: center;">{{ authHeadline }}</span>
       </div>
       <div style="display: flex; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(244,247,251,0.06); border: 1px solid rgba(244,247,251,0.08);">
@@ -2397,7 +2398,7 @@ class Component extends DCLogic {
       return {
         name: it.name || t.noName,
         dateLabel: it.date ? new Date(it.date + "T12:00:00").toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long" }) : "—",
-        kmLabel: it.km ? String(it.km) : "",
+        kmLabel: it.km ? String(it.km) + " km" : "",
         photoLabel: nPhotos(photos.length),
         videoLabel: nVideos(videos.length),
         fromLabel: t.from + " " + money(photos.length ? this.priceOf(it, "photo") : this.priceOf(it, videos.length ? "video" : "photo")),
