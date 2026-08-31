@@ -577,17 +577,18 @@
     },
 
     // Pregunta a Stripe si la sesión está cobrada (no depende del webhook).
+    // Va con la clave pública a propósito: la función usa permisos de servidor
+    // para marcar el pedido, así que la confirmación funciona incluso si la
+    // sesión del navegador cambió o caducó durante el pago.
     async verifyStripe(sessionId) {
       if (!live) return { paid: false };
       const name = (window.JRR_FUNCTIONS || {}).checkout || "checkout";
-      const { data: sess } = await sb.auth.getSession();
-      const token = sess && sess.session ? sess.session.access_token : cfg.anonKey;
       try {
         const r = await fetch(cfg.url + "/functions/v1/" + name, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
+            Authorization: "Bearer " + cfg.anonKey,
             apikey: cfg.anonKey
           },
           body: JSON.stringify({ session_id: sessionId })
