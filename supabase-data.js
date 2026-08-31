@@ -382,7 +382,15 @@
       }).select("id").single();
       if (error) return { error: error.message };
 
+      // Las fotos nuevas van DETRÁS de las que ya hay: si se empieza en 0,
+      // se duplican las posiciones y el álbum se desordena.
       let position = 0;
+      try {
+        const { data: ultima } = await sb.from("media")
+          .select("position").eq("album_id", a.id)
+          .order("position", { ascending: false }).limit(1);
+        if (ultima && ultima.length) position = Number(ultima[0].position || 0) + 1;
+      } catch (e) { /* si falla, se empieza en 0 */ }
       const fallidos = [];
       const total = (files || []).length;
       let hechos = 0;
