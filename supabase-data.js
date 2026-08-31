@@ -408,18 +408,35 @@
         }
         if (upOriginal.error) { fallidos.push(f.name); hechos++; avisar(f.name); continue; }
 
+        // Sin vista previa no se publica NADA: sin ella no hay marca de agua,
+        // y el archivo original quedaría a la venta sin proteger. Cubre HEIC,
+        // RAW, TIFF y vídeos con códecs que el navegador no sabe leer.
+        if (!item.preview) {
+          await sb.storage.from("originals").remove([base]).catch(() => {});
+          fallidos.push(f.name);
+          hechos++;
+          avisar(f.name);
+          continue;
+        }
+
         // Preview visible: la versión reducida con marca de agua CSS hasta que
         // la Edge Function watermark la reescriba incrustada en el píxel.
         let previewPath = null;
-        if (item.preview) {
-          try {
-            const blob = await (await fetch(item.preview)).blob();
-            const pPath = base.replace(/\.[^.]+$/, "") + "-preview.jpg";
-            const upPreview = await sb.storage.from("previews").upload(pPath, blob, {
-              contentType: "image/jpeg", upsert: true
-            });
-            if (!upPreview.error) previewPath = pPath;
-          } catch (e) { /* sin preview, pero el original ya está guardado */ }
+        try {
+          const blob = await (await fetch(item.preview)).blob();
+          const pPath = base.replace(/\.[^.]+$/, "") + "-preview.jpg";
+          const upPreview = await sb.storage.from("previews").upload(pPath, blob, {
+            contentType: "image/jpeg", upsert: true
+          });
+          if (!upPreview.error) previewPath = pPath;
+        } catch (e) { /* se comprueba justo debajo */ }
+
+        if (!previewPath) {
+          await sb.storage.from("originals").remove([base]).catch(() => {});
+          fallidos.push(f.name);
+          hechos++;
+          avisar(f.name);
+          continue;
         }
 
         const { data: inserted, error: errIns } = await sb.from("media").insert({
