@@ -29,7 +29,7 @@
   ::selection { background: #ff6b3d; color: #fff; }
   input:focus-visible, button:focus-visible, label:focus-visible { outline: 3px solid #ff6b3d; outline-offset: 2px; }
   @keyframes floatUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  @keyframes tira6 { from { background-position-y: 0%; } to { background-position-y: 100%; } }
+  @keyframes tiraN { from { background-position-y: 0%; } to { background-position-y: 120%; } }
   @keyframes popIn { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
   @keyframes shimmer { from { background-position: 180% 0; } to { background-position: -60% 0; } }
   * { scrollbar-color: #ff6b3d rgba(244,247,251,0.06); scrollbar-width: thin; }
@@ -786,7 +786,9 @@
         <button type="button" onClick="{{ closeViewer }}" style="border: 0; background: rgba(244,247,251,0.1); color: #f4f7fb; width: 42px; height: 42px; border-radius: 999px; cursor: pointer; font-size: 18px; flex: none;" style-hover="background: rgba(255,107,61,0.3)">✕</button>
       </div>
 
-      <div style="{{ viewer.imgStyle }}" onTouchStart="{{ swipeStart }}" onTouchEnd="{{ swipeEnd }}" onClick="{{ toggleZoom }}"></div>
+      <div ref="{{ viewerBoxRef }}" style="flex: 1; min-height: 0; display: flex; overflow: hidden;">
+        <div style="{{ viewer.imgStyle }}" onTouchStart="{{ swipeStart }}" onTouchEnd="{{ swipeEnd }}" onClick="{{ toggleZoom }}"></div>
+      </div>
 
       <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
         <div style="display: flex; gap: 10px;">
@@ -1495,6 +1497,12 @@ const SWATCHES = [
   ["#64748b", "#cbd5e1"]  // pizarra
 ];
 const STORE = "jrr-gallery-v1";
+// Fotogramas de la vista previa en movimiento.
+const TIRA_N = 6;
+const TIRA_SIZE = (TIRA_N * 100) + "%";
+// El recorrido de @keyframes tiraN (120%) corresponde a TIRA_N = 6:
+// es N/(N-1)·100%. Si cambia N, hay que ajustar ese 120% en el <helmet>.
+const TIRA_ANIM = "tiraN 3.2s steps(" + TIRA_N + ") infinite";
 const PAY = Object.assign({ revolut: "@jrrjaime", revolutUrl: "https://revolut.me/jrrjaime", iban: "FI21 1234 5600 0007 85", phone: "+34 618 648 370" }, window.JRR_PAY || {});
 
 // Previews en IndexedDB: aguantan 20+ fotos y sobreviven a la recarga.
@@ -1562,7 +1570,7 @@ class Component extends DCLogic {
     lang: null, view: "home", groupId: "hamk", albumId: null,
     panel: null, editing: null, toast: "", cartOpen: false,
     groups: [{ id: "hamk", name: "HAMK RUN CLUB", city: "Hämeenlinna", palette: 0, poster: "assets/hamk-run-club-cartel.jpeg", items: [] }],
-    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, dragging: false, ratios: {}, posterRatios: {}, query: "", mes: "", consentAsked: false, settings: null, tiras: {}, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
+    users: [], user: null, orders: [], cart: [], payOrderId: null, notifs: [], notifsBroken: false, viewer: null, newPass: "", consent: false, sel: [], groupEditing: null, langOpen: false, tilesShown: 24, loading: true, upProgress: null, zoom: false, dragging: false, ratios: {}, posterRatios: {}, query: "", mes: "", consentAsked: false, settings: null, tiras: {}, viewerBox: null, confirmClean: false, seenTick: 0, stats: null, confirmDel: null,
     form: this.blankForm(),
     groupForm: { name: "", city: "", palette: 1, posterFile: null, posterPreview: "" },
     authMode: "login", authForm: { name: "", email: "", pass: "", role: "runner" }, authError: "",
@@ -2213,7 +2221,7 @@ class Component extends DCLogic {
   // Se anima en la galería con CSS, así que viaja como una foto normal —
   // sin librerías, sin tocar el servidor, y el vídeo bueno nunca se expone.
   videoStrip(file, cuadros) {
-    const N = cuadros || 6;
+    const N = cuadros || TIRA_N;
     return new Promise(resolve => {
       const v = document.createElement("video");
       const src = URL.createObjectURL(file);
@@ -2278,10 +2286,15 @@ class Component extends DCLogic {
     pendientes.forEach(m => {
       const img = new Image();
       img.onload = () => {
-        const esTira = img.naturalWidth > 0 && (img.naturalHeight / img.naturalWidth) >= 3;
-        this.setState(s => ({ tiras: Object.assign({}, s.tiras, { [m.id]: esTira }) }));
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const esTira = w > 0 && (h / w) >= 3;
+        // Se guarda la proporción de UN fotograma: el visor la usa para
+        // encajar el vídeo igual que una foto, sin recortar por los lados.
+        const dato = esTira ? { ok: true, ratio: w / (h / TIRA_N) } : { ok: false };
+        this.setState(s => ({ tiras: Object.assign({}, s.tiras, { [m.id]: dato }) }));
       };
-      img.onerror = () => this.setState(s => ({ tiras: Object.assign({}, s.tiras, { [m.id]: false }) }));
+      img.onerror = () => this.setState(s => ({ tiras: Object.assign({}, s.tiras, { [m.id]: { ok: false } }) }));
       img.src = m.url;
     });
   }
@@ -2578,9 +2591,13 @@ class Component extends DCLogic {
     pend.forEach(m => {
       const im = new Image();
       im.onload = () => {
-        acum[m.id] = (im.naturalWidth && im.naturalHeight)
-          ? im.naturalWidth / im.naturalHeight
-          : 1.333;
+        const w = im.naturalWidth;
+        const h = im.naturalHeight;
+        if (!w || !h) { acum[m.id] = 1.333; volcar(); return; }
+        // Las previews de vídeo son una tira de TIRA_N fotogramas apilados:
+        // lo que hay que medir es un fotograma, no la tira completa.
+        const esTira = m.kind === "video" && (h / w) >= 3;
+        acum[m.id] = esTira ? w / (h / TIRA_N) : w / h;
         volcar();
       };
       im.onerror = () => { acum[m.id] = 1.333; volcar(); };
@@ -3156,8 +3173,8 @@ class Component extends DCLogic {
     const tiras = this.state.tiras || {};
     const tile = (m, i) => {
       if (!m || !m.url) return "position: absolute; inset: 0; background-color: #1b2740; background-image: repeating-linear-gradient(-45deg, rgba(244,247,251,0.09) 0 12px, rgba(244,247,251,0.02) 12px 24px);";
-      if (m.kind === "video" && tiras[m.id]) {
-        return "position: absolute; inset: 0; background-image: url('" + m.url + "'); background-size: 100% 600%; background-position: 0 0; animation: tira6 3.2s steps(6) infinite;";
+      if (m.kind === "video" && tiras[m.id] && tiras[m.id].ok) {
+        return "position: absolute; inset: 0; background-image: url('" + m.url + "'); background-size: 100% " + TIRA_SIZE + "; background-position-y: 0%; animation: " + TIRA_ANIM + ";";
       }
       return "position: absolute; inset: 0; background-image: url('" + m.url + "'); background-size: cover; background-position: center;";
     };
@@ -3827,6 +3844,14 @@ class Component extends DCLogic {
         style: "width: 56px; height: 56px; border-radius: 999px; cursor: pointer; font-size: 26px; line-height: 1; display: grid; place-items: center; background: rgba(244,247,251,0.07); border: " + ((user && user.avatar === k) ? "3px solid #ff6b3d" : "3px solid transparent") + ";"
       })),
       viewerOpen: this.state.viewer !== null && !!al && !!al.media[this.state.viewer],
+      viewerBoxRef: (el) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const prev = this.state.viewerBox;
+        if (!prev || Math.abs(prev.w - r.width) > 2 || Math.abs(prev.h - r.height) > 2) {
+          this.setState({ viewerBox: { w: r.width, h: r.height } });
+        }
+      },
       viewer: (() => {
         const i = this.state.viewer;
         if (i === null || !al || !al.media[i]) return { imgStyle: "", counter: "", price: "", btnLabel: "", btnStyle: "", action: () => {}, name: "" };
@@ -3835,13 +3860,26 @@ class Component extends DCLogic {
         const inCart = cartKeys.indexOf(key) > -1;
         return {
           imgStyle: (() => {
-            const base = "flex: 1; min-height: 0; border-radius: 22px; background-color: #0b1220; touch-action: pan-y; background-repeat: no-repeat; ";
-            if (!m.url) return base + "background-image: repeating-linear-gradient(-45deg, rgba(244,247,251,0.09) 0 12px, rgba(244,247,251,0.02) 12px 24px);";
+            const base = "min-height: 0; border-radius: 22px; background-color: #0b1220; touch-action: pan-y; background-repeat: no-repeat; ";
+            if (!m.url) return base + "flex: 1; width: 100%; background-image: repeating-linear-gradient(-45deg, rgba(244,247,251,0.09) 0 12px, rgba(244,247,251,0.02) 12px 24px);";
             // La tira del vídeo se anima aquí también, sin zoom (no tiene sentido).
-            if (m.kind === "video" && (this.state.tiras || {})[m.id]) {
-              return base + "background-image: url('" + m.url + "'); background-size: auto 600%; background-position: center 0; animation: tira6 3.2s steps(6) infinite;";
+            const tira = (this.state.tiras || {})[m.id];
+            if (m.kind === "video" && tira && tira.ok) {
+              // Se calcula el encaje en píxeles: con porcentajes, un hueco
+              // ancho y bajo aplastaba el fotograma.
+              const caja = this.state.viewerBox;
+              const r = tira.ratio;
+              let w = "100%", h = "auto";
+              if (caja && caja.w > 0 && caja.h > 0) {
+                const anchoSiCabe = caja.h * r;
+                if (anchoSiCabe <= caja.w) { w = Math.floor(anchoSiCabe) + "px"; h = Math.floor(caja.h) + "px"; }
+                else { w = Math.floor(caja.w) + "px"; h = Math.floor(caja.w / r) + "px"; }
+              }
+              return "flex: 0 0 auto; margin: auto; border-radius: 22px; background-color: #0b1220; background-repeat: no-repeat; width: " + w + "; height: " + h +
+                "; background-image: url('" + m.url + "'); background-size: 100% " + TIRA_SIZE +
+                "; background-position-y: 0%; animation: " + TIRA_ANIM + ";";
             }
-            return base + "cursor: " + (this.state.zoom ? "zoom-out" : "zoom-in") + "; transition: background-size 220ms ease; background-image: url('" + m.url + "'); background-size: " + (this.state.zoom ? "200%" : "contain") + "; background-position: center;";
+            return base + "flex: 1; width: 100%; cursor: " + (this.state.zoom ? "zoom-out" : "zoom-in") + "; transition: background-size 220ms ease; background-image: url('" + m.url + "'); background-size: " + (this.state.zoom ? "200%" : "contain") + "; background-position: center;";
           })(),
           counter: (i + 1) + " / " + al.media.length,
           name: (m.kind === "video" ? t.video : t.photo) + " " + (i + 1),
