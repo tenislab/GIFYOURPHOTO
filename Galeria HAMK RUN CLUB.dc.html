@@ -2253,11 +2253,14 @@ class Component extends DCLogic {
         for (let i = 0; i < N; i++) tiempos.push(dur * (0.08 + (0.84 * i) / (N - 1)));
 
         let i = 0;
+        let reloj = null;
         const pintar = () => {
+          if (reloj) { clearTimeout(reloj); reloj = null; }
           try {
             ctx.save();
             ctx.translate(0, h * i);
-            ctx.filter = "blur(1.2px)";
+            // Desenfoque ligero: se ve el movimiento pero no sirve sin pagar.
+            try { ctx.filter = "blur(1.2px)"; } catch (e) {}
             ctx.drawImage(v, 0, 0, w, h);
             ctx.filter = "none";
             this.stampWatermark(ctx, w, h);
@@ -2265,6 +2268,17 @@ class Component extends DCLogic {
           } catch (e) { finish(""); return; }
           i++;
           if (i >= N) { finish(c.toDataURL("image/jpeg", 0.62)); return; }
+          // Si un salto no responde, se cierra con los fotogramas que haya.
+          reloj = setTimeout(() => {
+            const hechos = i;
+            if (hechos >= 2) {
+              // Se repite el último para completar la tira y no dejar huecos.
+              for (let k = hechos; k < N; k++) {
+                ctx.drawImage(c, 0, h * (hechos - 1), w, h, 0, h * k, w, h);
+              }
+              finish(c.toDataURL("image/jpeg", 0.62));
+            } else finish("");
+          }, 4000);
           v.currentTime = tiempos[i];
         };
         v.onseeked = pintar;
