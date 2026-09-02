@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-8f21c42d-8ef9-4dc9-a797-3e681a963d01/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="./doc-page.js"></script>
+  <style>
+    doc-page:not(:defined) { visibility: hidden; }
+    body { margin: 0; }
+  </style>
+</helmet>
+
+<doc-page orientation="landscape">
+
+  <section class="page" style="padding: 0.34in 0.42in; display: flex; flex-direction: column; background: var(--color-bg); font-family: var(--font-body); color: var(--color-text); overflow: hidden;">
+
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 10px; border-bottom: 2px solid var(--color-divider);">
+      <div>
+        <span style="display: block; font-size: 7pt; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 4px;">Uso interno · no enseñar al cliente</span>
+        <h1 style="font-family: var(--font-heading); font-size: 19pt; font-weight: 900; line-height: 1; letter-spacing: -0.03em; margin: 0;">Chuleta de precios</h1>
+      </div>
+      <span style="text-align: right; font-size: 7.5pt; line-height: 1.5; color: var(--color-neutral-600);">Suelo 10 €/h · objetivo 18 €/h<br>Nunca por debajo de 25 € por salir de casa</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; margin-top: 9px;">
+
+      <div>
+        <h2 style="font-family: var(--font-heading); font-size: 8.5pt; font-weight: 800; margin: 0 0 4px;">Tarifa base por horas</h2>
+        <table class="table" style="width: 100%; font-size: 6.9pt; margin: 0; line-height: 1.25;">
+          <thead>
+            <tr>
+              <th style="text-align: left;">En el campo</th>
+              <th style="text-align: left;">Trabajo</th>
+              <th style="text-align: left;">Fotos</th>
+              <th style="text-align: left;">€/h</th>
+              <th style="text-align: left;">+ dron</th>
+              <th style="text-align: left;">€/h</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight: 700;">1 h</td><td>2,5 h</td><td>25 €</td><td style="color: var(--color-accent-700);">10 €</td><td style="font-weight: 700;">40 €</td><td style="color: var(--color-accent-700);">16 €</td></tr>
+            <tr><td style="font-weight: 700;">2 h</td><td>4 h</td><td>45 €</td><td style="color: var(--color-accent-700);">11 €</td><td style="font-weight: 700;">68 €</td><td style="color: var(--color-accent-700);">17 €</td></tr>
+            <tr><td style="font-weight: 700;">3 h</td><td>6 h</td><td>68 €</td><td style="color: var(--color-accent-700);">11 €</td><td style="font-weight: 700;">95 €</td><td style="color: var(--color-accent-700);">16 €</td></tr>
+            <tr><td style="font-weight: 700;">4 h</td><td>7,5 h</td><td>88 €</td><td style="color: var(--color-accent-700);">12 €</td><td style="font-weight: 700;">125 €</td><td style="color: var(--color-accent-700);">17 €</td></tr>
+            <tr><td style="font-weight: 700;">6 h</td><td>10 h</td><td>120 €</td><td style="color: var(--color-accent-700);">12 €</td><td style="font-weight: 700;">170 €</td><td style="color: var(--color-accent-700);">17 €</td></tr>
+            <tr><td style="font-weight: 700;">Hora extra</td><td>1,5 h</td><td>+20 €</td><td>13 €</td><td style="font-weight: 700;">+30 €</td><td>20 €</td></tr>
+          </tbody>
+        </table>
+
+        <h2 style="font-family: var(--font-heading); font-size: 8.5pt; font-weight: 800; margin: 9px 0 4px;">Precio ya calculado, partido de 2 h</h2>
+        <table class="table" style="width: 100%; font-size: 6.9pt; margin: 0; line-height: 1.25;">
+          <thead>
+            <tr>
+              <th style="text-align: left;">Caso</th>
+              <th style="text-align: left;">Ajuste</th>
+              <th style="text-align: left;">Fotos</th>
+              <th style="text-align: left;">+ dron</th>
+              <th style="text-align: left;">Bono grupo</th>
+              <th style="text-align: left;">Por cabeza</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight: 700;">Fútbol 7</td><td>base</td><td>45 €</td><td style="font-weight: 800; color: var(--color-accent);">68 €</td><td>72 €</td><td>6 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Fútbol 11</td><td>+25 %</td><td>56 €</td><td style="font-weight: 800; color: var(--color-accent);">85 €</td><td>90 €</td><td>7,50 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Fútbol sala</td><td>−10 %</td><td>40 €</td><td style="font-weight: 800; color: var(--color-accent);">61 €</td><td>65 €</td><td>5,50 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Baloncesto</td><td>+10 %</td><td>50 €</td><td style="font-weight: 800; color: var(--color-accent);">75 €</td><td>78 €</td><td>6,50 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Baloncesto 3x3</td><td>−10 %</td><td>40 €</td><td style="font-weight: 800; color: var(--color-accent);">61 €</td><td>65 €</td><td>5,50 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Running</td><td>base</td><td>45 €</td><td style="font-weight: 800; color: var(--color-accent);">68 €</td><td>72 €</td><td>6 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Tenis y pádel</td><td>−10 %</td><td>40 €</td><td style="font-weight: 800; color: var(--color-accent);">61 €</td><td>—</td><td>22 € el jugador</td></tr>
+            <tr><td style="font-weight: 700;">Ciclismo</td><td>+15 %</td><td>52 €</td><td style="font-weight: 800; color: var(--color-accent);">78 €</td><td>78 €</td><td>6,50 € · 12</td></tr>
+            <tr><td style="font-weight: 700;">Categoría base</td><td>−20 %</td><td>36 €</td><td style="font-weight: 800; color: var(--color-accent);">54 €</td><td>58 €</td><td>5 € · 12</td></tr>
+            <tr style="background: var(--color-accent-100);"><td style="font-weight: 700;">Gratis · solo venta</td><td>0 €</td><td colspan="3" style="font-size: 7pt;">No cobras por ir; cada uno compra las suyas en la web</td><td style="font-weight: 800; color: var(--color-accent-700);">15-25 €</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h2 style="font-family: var(--font-heading); font-size: 8.5pt; font-weight: 800; margin: 0 0 4px;">Extras y recargos</h2>
+        <table class="table" style="width: 100%; font-size: 6.9pt; margin: 0; line-height: 1.25;">
+          <tbody>
+            <tr><td>Resumen de dron, 60-90 s</td><td style="text-align: right; font-weight: 700;">35 €</td></tr>
+            <tr><td>Vídeo del evento, 2-3 min</td><td style="text-align: right; font-weight: 700;">60 €</td></tr>
+            <tr><td>Vídeo de técnica, tenis</td><td style="text-align: right; font-weight: 700;">45 €</td></tr>
+            <tr><td>Retratos de equipo</td><td style="text-align: right; font-weight: 700;">55 €</td></tr>
+            <tr><td>Entrega en 24 h</td><td style="text-align: right; font-weight: 700;">+25 %</td></tr>
+            <tr><td>Domingo o festivo</td><td style="text-align: right; font-weight: 700;">+15 %</td></tr>
+            <tr><td>Desplazamiento &gt; 20 km</td><td style="text-align: right; font-weight: 700;">0,30 €/km</td></tr>
+            <tr><td>Segundo evento el mismo día</td><td style="text-align: right; font-weight: 700;">−25 %</td></tr>
+            <tr><td>Bono de 10 eventos</td><td style="text-align: right; font-weight: 700;">−20 %</td></tr>
+          </tbody>
+        </table>
+
+        <h2 style="font-family: var(--font-heading); font-size: 8.5pt; font-weight: 800; margin: 9px 0 4px;">Venta al participante</h2>
+        <table class="table" style="width: 100%; font-size: 6.9pt; margin: 0; line-height: 1.25;">
+          <tbody>
+            <tr><td>Foto suelta</td><td style="text-align: right; font-weight: 700;">1 €</td></tr>
+            <tr><td>Vídeo suelto</td><td style="text-align: right; font-weight: 700;">3 €</td></tr>
+            <tr><td>Pack SPRINT · 5 fotos</td><td style="text-align: right; font-weight: 700;">3 €</td></tr>
+            <tr><td>Pack PLUS · 10 fotos</td><td style="text-align: right; font-weight: 700;">5 €</td></tr>
+            <tr><td>Pack PREMIUM · 25 fotos</td><td style="text-align: right; font-weight: 700;">10 €</td></tr>
+            <tr><td>Mínimo con tarjeta</td><td style="text-align: right; font-weight: 700;">2 €</td></tr>
+          </tbody>
+        </table>
+
+
+        <div style="margin-top: 9px; padding: 9px 11px; border: 2px solid var(--color-divider);">
+          <span style="display: block; font-size: 7pt; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 7px;">Lo que se te olvida cobrar</span>
+          <ul style="margin: 0; padding-left: 14px; font-size: 7.5pt; line-height: 1.55; color: var(--color-neutral-700);">
+            <li>Los kilómetros de más de 20</li>
+            <li>El festivo</li>
+            <li>La hora que se alargó</li>
+            <li>El vídeo editado, que no va incluido</li>
+            <li>Stripe se lleva 1,5 % + 0,25 € de cada cobro</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: auto; padding-top: 9px; border-top: 2px solid var(--color-divider); display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; font-size: 7.2pt; line-height: 1.5; color: var(--color-neutral-700);">
+      <span><strong style="color: var(--color-text);">Cómo cotizar:</strong> horas en el campo → ajuste del caso → extras → redondea hacia arriba a múltiplo de 5 → di el precio con fecha de entrega. Primer evento con cliente nuevo: gratis a cambio de portfolio.</span>
+      <span style="padding-left: 16px; border-left: 2px solid var(--color-accent);"><strong style="color: var(--color-accent-700);">Opción gratis:</strong> no cobras por ir; subes con marca de agua y cada uno compra las suyas (foto 1 €, vídeo 3 €, packs desde 3 €). Para cliente nuevo, grupo que regatea o para probar si compran: de 12 personas compran 5 o 6, unos <strong style="color: var(--color-text);">15-25 €</strong> por evento.</span>
+    </div>
+
+  </section>
+
+</doc-page>
+</x-dc>
+</body>
+</html>
