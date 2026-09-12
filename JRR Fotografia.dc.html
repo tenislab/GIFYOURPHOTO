@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; background: #0b1220; color: #f4f7fb; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+    img { display: block; max-width: 100%; }
+    a { color: #ff9a72; text-decoration: none; }
+    a:hover { color: #ffb03d; }
+    ::selection { background: #ff6b3d; color: #0b1220; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b1220; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,107,61,0.7); border: 2px solid transparent; background-clip: padding-box; }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    @media (max-width: 720px) { [data-tagline] { display: none !important; } }
+    /* El botón de presupuesto nunca se va fuera de pantalla: en móvil la
+       cabecera se apila y el menú queda debajo del logo. */
+    @media (max-width: 860px) {
+      [data-head] { flex-wrap: wrap; row-gap: 10px; }
+      [data-nav] { order: 3; width: 100%; justify-content: flex-start; }
+      [data-cta] { order: 2; }
+    }
+    /* La tabla de tarifas se leía pegada: por debajo de 640px, cada fila
+       pasa a dos líneas con su etiqueta delante. */
+    @media (max-width: 640px) {
+      [data-tar-head] { display: none !important; }
+      [data-tar-row] { display: flex !important; flex-wrap: wrap; gap: 6px 18px !important; padding-top: 18px !important; padding-bottom: 18px !important; }
+      [data-tar-name] { flex: 1 0 100%; font-size: 16px !important; margin-bottom: 2px; }
+      [data-tar-lbl] { display: inline !important; color: #7f95b5; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    }
+    [data-tar-lbl] { display: none; }
+  </style>
+</helmet>
+
+<div style="font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header data-head="1" style="position: sticky; top: 0; z-index: 50; background: rgba(11,18,32,0.84); backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid rgba(244,247,251,0.09); display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px clamp(14px, 4vw, 46px);">
+    <button type="button" onClick="{{ irInicio }}" style="display: flex; align-items: center; gap: 11px; flex: none; border: 0; background: none; color: inherit; cursor: pointer; padding: 0;">
+      <span style="width: 34px; height: 34px; flex: none; border-radius: 11px; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.14);"></span>
+      <span style="display: flex; flex-direction: column; line-height: 1.15; text-align: left;">
+        <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em;">JRR</span>
+        <span data-tagline="1" style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #7f95b5;">Fotografía y dron</span>
+      </span>
+    </button>
+
+    <nav data-nav="1" style="display: flex; align-items: center; gap: clamp(4px, 1vw, 10px); flex-wrap: wrap; justify-content: flex-end; min-width: 0;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <button type="button" onClick="{{ n.go }}" style="{{ n.style }}" style-hover="color: #f4f7fb">{{ n.label }}</button>
+      </sc-for>
+    </nav>
+
+    <a data-cta="1" href="https://wa.me/34618648370" target="_blank" style="display: inline-flex; align-items: center; flex: none; padding: 0 18px; min-height: 42px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ff9d3d); color: #14233c; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; box-shadow: 0 1px 0 rgba(255,255,255,0.28) inset, 0 8px 20px -6px rgba(255,107,61,0.5);">Presupuesto</a>
+  </header>
+
+  <main style="flex: 1;">
+
+    <sc-if value="{{ enInicio }}" hint-placeholder-val="{{ true }}">
+      <section style="position: relative; overflow: hidden; border-bottom: 1px solid rgba(244,247,251,0.09);">
+        <span style="position: absolute; inset: 0; background-image: linear-gradient(100deg, rgba(11,18,32,0.97) 0%, rgba(11,18,32,0.9) 42%, rgba(11,18,32,0.45) 76%, rgba(11,18,32,0.3) 100%), url('img/m/hero.jpg'); background-size: cover, cover; background-position: center, center 40%; filter: saturate(0.92);"></span>
+        <span style="position: absolute; top: -120px; right: -80px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(255,107,61,0.18), rgba(255,107,61,0) 70%); pointer-events: none;"></span>
+
+        <div style="position: relative; padding: clamp(46px, 8vw, 100px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; animation: riseIn 600ms ease both;">
+          <span style="display: inline-flex; align-items: center; gap: 9px; align-self: flex-start; padding: 8px 15px; border-radius: 999px; background: rgba(255,107,61,0.14); border: 1px solid rgba(255,107,61,0.3); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #ff9a72;">Granada y provincia</span>
+          <h1 style="margin: 0; max-width: 17ch; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(38px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.04em; text-wrap: balance;">Fotografía para clubes, equipos y hermandades</h1>
+          <p style="margin: 0; max-width: 46ch; font-size: clamp(16px, 1.8vw, 20px); line-height: 1.6; color: #c2d0e6;">Cubro partidos, carreras, procesiones y actos con cámara y dron. En 48 horas tenéis las fotos reveladas y listas para usar: redes, cartelería y web, sin pagar nada más por el uso.</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px;">
+            <a href="https://wa.me/34618648370" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 28px; min-height: 54px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ff9d3d); color: #14233c; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; box-shadow: 0 1px 0 rgba(255,255,255,0.28) inset, 0 12px 28px -8px rgba(255,107,61,0.6);">Hablamos por WhatsApp</a>
+            <button type="button" onClick="{{ irTrabajo }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; min-height: 54px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer;" style-hover="border-color: #ff6b3d; color: #ff9a72">Ver el trabajo</button>
+          </div>
+        </div>
+      </section>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 50%), 1fr)); border-bottom: 1px solid rgba(244,247,251,0.09); max-width: 1240px; margin: 0 auto;">
+        <sc-for list="{{ cifras }}" as="c" hint-placeholder-count="4">
+          <div style="padding: 26px clamp(14px, 3vw, 28px) 30px; border-right: 1px solid rgba(244,247,251,0.07);">
+            <span style="display: block; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.035em; line-height: 1; color: #ff9a72; font-variant-numeric: tabular-nums;">{{ c.dato }}</span>
+            <span style="display: block; margin-top: 8px; font-size: 12px; line-height: 1.5; color: #8fa3c0;">{{ c.pie }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <section style="padding: clamp(40px, 6vw, 76px) clamp(16px, 4vw, 46px); max-width: 1240px; margin: 0 auto;">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 26px;">
+          <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(26px, 3.6vw, 40px); letter-spacing: -0.03em;">Lo que hago</h2>
+          <button type="button" onClick="{{ irServicios }}" style="border: 0; background: none; color: #ff9a72; cursor: pointer; font-size: 14px; padding: 6px 0;" style-hover="color: #ffb03d">Ver todos los servicios →</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px;">
+          <sc-for list="{{ servicios }}" as="s" hint-placeholder-count="4">
+            <div style="padding: 26px 24px 30px; border-radius: 22px; background: linear-gradient(180deg, #16233b, #121d31); border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 18px 38px -20px rgba(4,9,20,0.8); display: flex; flex-direction: column; gap: 12px;">
+              <span style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: rgba(255,107,61,0.16); display: grid; place-items: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ s.icon }}"></path></svg>
+              </span>
+              <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.2; letter-spacing: -0.015em;">{{ s.titulo }}</span>
+              <span style="font-size: 14px; line-height: 1.65; color: #a9bad4;">{{ s.texto }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="padding: 0 clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto;">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 22px;">
+          <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(26px, 3.6vw, 40px); letter-spacing: -0.03em;">Trabajo reciente</h2>
+          <button type="button" onClick="{{ irTrabajo }}" style="border: 0; background: none; color: #ff9a72; cursor: pointer; font-size: 14px; padding: 6px 0;" style-hover="color: #ffb03d">Ver el portfolio →</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 14px;">
+          <sc-for list="{{ destacadas }}" as="w" hint-placeholder-count="3">
+            <figure style="margin: 0; position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; background: #131f34; border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 16px 34px -18px rgba(4,9,20,0.8); transition: border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1);" style-hover="border-color: rgba(255,107,61,0.36); transform: translateY(-3px)">
+              <span style="{{ w.style }}"></span>
+              <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 16px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,247,251,0.82); background: linear-gradient(to top, rgba(4,9,20,0.82), transparent);">{{ w.pie }}</figcaption>
+            </figure>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ enTrabajo }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto; animation: riseIn 450ms ease both;">
+        <span style="display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a72; margin-bottom: 14px;">Portfolio</span>
+        <h1 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(32px, 5.4vw, 60px); line-height: 1; letter-spacing: -0.04em;">El trabajo</h1>
+        <p style="margin: 0 0 30px; max-width: 50ch; font-size: 17px; line-height: 1.6; color: #a9bad4;">Cuatro terrenos distintos, la misma forma de trabajar: acercarse, esperar y disparar cuando pasa algo.</p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 26px;">
+          <sc-for list="{{ filtros }}" as="f" hint-placeholder-count="6">
+            <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}" style-hover="border-color: #ff6b3d; color: #ff9a72">{{ f.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 14px;">
+          <sc-for list="{{ galeria }}" as="w" hint-placeholder-count="6">
+            <figure style="margin: 0; position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; background: #16233b; border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 16px 34px -18px rgba(4,9,20,0.8); transition: border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1); animation: riseIn 420ms ease both;" style-hover="border-color: rgba(255,107,61,0.36); transform: translateY(-3px)">
+              <span style="{{ w.style }}"></span>
+              <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,247,251,0.82); background: linear-gradient(to top, rgba(4,9,20,0.84), transparent);">
+                <span>{{ w.pie }}</span>
+                <span style="color: #ff9a72;">{{ w.tema }}</span>
+              </figcaption>
+            </figure>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hayMas }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; justify-content: center; margin-top: 26px;">
+            <button type="button" onClick="{{ verMas }}" style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer; padding: 0 28px; min-height: 52px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; transition: border-color 160ms ease, color 160ms ease;" style-hover="border-color: #ff6b3d; color: #ff9a72">
+              Ver más · <span style="color: #7f95b5;">{{ restantes }}</span>
+            </button>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ enServicios }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto; animation: riseIn 450ms ease both;">
+        <span style="display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a72; margin-bottom: 14px;">Servicios</span>
+        <h1 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(32px, 5.4vw, 60px); line-height: 1; letter-spacing: -0.04em;">Qué incluye cada encargo</h1>
+        <p style="margin: 0 0 34px; max-width: 52ch; font-size: 17px; line-height: 1.6; color: #a9bad4;">Lo mismo en todos, sea un partido de alevines, una carrera de quinientos corredores o una salida de madrugada.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px; margin-bottom: 34px;">
+          <sc-for list="{{ servicios }}" as="s" hint-placeholder-count="4">
+            <div style="padding: 26px 24px 30px; border-radius: 22px; background: linear-gradient(180deg, #16233b, #121d31); border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 18px 38px -20px rgba(4,9,20,0.8); display: flex; flex-direction: column; gap: 12px;">
+              <span style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: rgba(255,107,61,0.16); display: grid; place-items: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff9a72" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ s.icon }}"></path></svg>
+              </span>
+              <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.2; letter-spacing: -0.015em;">{{ s.titulo }}</span>
+              <span style="font-size: 14px; line-height: 1.65; color: #a9bad4;">{{ s.texto }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <h2 style="margin: 0 0 18px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 30px); letter-spacing: -0.025em;">Cómo funciona</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); border-radius: 24px; overflow: hidden; border: 1px solid rgba(244,247,251,0.09);">
+          <sc-for list="{{ pasos }}" as="p" hint-placeholder-count="4">
+            <div style="padding: 26px 22px 30px; border-right: 1px solid rgba(244,247,251,0.07); background: rgba(244,247,251,0.03); display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1; color: #ff6b3d;">{{ p.num }}</span>
+              <span style="font-weight: 700; font-size: 16px;">{{ p.titulo }}</span>
+              <span style="font-size: 13.5px; line-height: 1.65; color: #8fa3c0;">{{ p.texto }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ enTarifas }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto; animation: riseIn 450ms ease both;">
+        <span style="display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a72; margin-bottom: 14px;">Tarifas</span>
+        <h1 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(32px, 5.4vw, 60px); line-height: 1; letter-spacing: -0.04em;">Cuánto cuesta</h1>
+        <p style="margin: 0 0 30px; max-width: 52ch; font-size: 17px; line-height: 1.6; color: #a9bad4;">Precio cerrado por encargo, sin letra pequeña. Vale igual para un partido, una carrera o una salida procesional.</p>
+
+        <div style="border-radius: 24px; background: linear-gradient(180deg, #16233b, #121d31); border: 1px solid rgba(244,247,251,0.08); overflow: hidden;">
+          <div data-tar-head="1" style="display: grid; grid-template-columns: 1.7fr 1fr 1fr 1.2fr; gap: 14px; padding: 14px clamp(16px, 3vw, 26px); background: rgba(244,247,251,0.04); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #7f95b5;">
+            <span>Encargo</span><span>Fotos</span><span>Con dron</span><span>A repartir</span>
+          </div>
+          <sc-for list="{{ tarifas }}" as="r" hint-placeholder-count="5">
+            <div data-tar-row="1" style="display: grid; grid-template-columns: 1.7fr 1fr 1fr 1.2fr; gap: 14px; padding: 16px clamp(16px, 3vw, 26px); border-top: 1px solid rgba(244,247,251,0.07); align-items: baseline;">
+              <span data-tar-name="1" style="font-weight: 700; font-size: 15px;">{{ r.evento }}</span>
+              <span style="font-size: 15px; color: #c2d0e6; font-variant-numeric: tabular-nums;"><span data-tar-lbl="1">Fotos </span>{{ r.fotos }}</span>
+              <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; color: #ff9a72; font-variant-numeric: tabular-nums;"><span data-tar-lbl="1">Con dron </span>{{ r.dron }}</span>
+              <span style="font-size: 13px; color: #8fa3c0;"><span data-tar-lbl="1">Por cabeza </span>{{ r.cabeza }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <p style="margin: 26px 0 0; font-size: 13px; line-height: 1.75; color: #7f95b5; max-width: 62ch;">Fuera de Granada, 0,30 €/km a partir de 20 km. Con clubes federados y eventos de más de un día, presupuesto a medida.</p>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ enAutor }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1100px; margin: 0 auto; animation: riseIn 450ms ease both;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); gap: clamp(24px, 4vw, 48px); align-items: start;">
+          <div>
+            <span style="display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a72; margin-bottom: 14px;">Sobre mí</span>
+            <h1 style="margin: 0 0 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(32px, 5vw, 54px); line-height: 1; letter-spacing: -0.04em;">Jaime Rivas</h1>
+            <p style="margin: 0 0 16px; font-size: 17px; line-height: 1.65; color: #c2d0e6;">Hago fotos en Granada. Empecé disparando a lo que tenía delante —la ciudad, la Semana Santa, los aviones sobre el tejado— y acabé haciéndolo para gente que corre, juega y no puede pararse a hacerse la foto.</p>
+            <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.75; color: #a9bad4;">Trabajo con cámara y con dron. Revelo todo lo que entrego, nunca mando archivos en bruto, y cumplo la fecha: si digo 48 horas, son 48 horas.</p>
+            <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.75; color: #a9bad4;">Con equipos de categoría base, ninguna foto de un menor se publica sin el permiso firmado de su familia.</p>
+            <button type="button" onClick="{{ irContacto }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; min-height: 52px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer;" style-hover="border-color: #ff6b3d; color: #ff9a72">Cómo contactarme →</button>
+          </div>
+          <figure style="margin: 0; position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 24px; background: #131f34; border: 1px solid rgba(244,247,251,0.1);">
+            <span style="position: absolute; inset: 0; background-image: url('img/m/retrato.jpg'); background-size: cover; background-position: center; filter: grayscale(1) contrast(1.05);"></span>
+          </figure>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ enContacto }}" hint-placeholder-val="{{ false }}">
+      <section style="padding: clamp(36px, 5vw, 70px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1100px; margin: 0 auto; animation: riseIn 450ms ease both;">
+        <span style="display: block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a72; margin-bottom: 14px;">Contacto</span>
+        <h1 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(32px, 5.4vw, 60px); line-height: 1; letter-spacing: -0.04em;">Contadme el partido</h1>
+        <p style="margin: 0 0 32px; max-width: 50ch; font-size: 17px; line-height: 1.6; color: #a9bad4;">Día, hora, campo y categoría: con eso os doy precio cerrado y fecha de entrega el mismo día. Con dos días de aviso basta.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 14px;">
+          <a href="https://wa.me/34618648370" target="_blank" style="padding: 26px 24px 30px; border-radius: 22px; background: linear-gradient(140deg, #ff6b3d, #ff9d3d); color: #14233c; display: flex; flex-direction: column; gap: 9px;">
+            <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.78;">WhatsApp</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em;">618 648 370</span>
+            <span style="font-size: 13.5px;">Lo más rápido</span>
+          </a>
+          <a href="mailto:jaimerivasgranada@gmail.com" style="padding: 26px 24px 30px; border-radius: 22px; background: rgba(244,247,251,0.04); border: 1px solid rgba(244,247,251,0.1); color: #f4f7fb; display: flex; flex-direction: column; gap: 9px;">
+            <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #ff9a72;">Correo</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; word-break: break-all;">jaimerivasgranada@gmail.com</span>
+            <span style="font-size: 13.5px; color: #8fa3c0;">Para presupuestos de club</span>
+          </a>
+          <div style="padding: 26px 24px 30px; border-radius: 22px; background: rgba(244,247,251,0.04); border: 1px solid rgba(244,247,251,0.1); display: flex; flex-direction: column; gap: 9px;">
+            <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #ff9a72;">Dónde</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px;">Granada y provincia</span>
+            <span style="font-size: 13.5px; line-height: 1.6; color: #8fa3c0;">Fuera, con gastos de desplazamiento</span>
+          </div>
+        </div>
+
+      </section>
+    </sc-if>
+
+  </main>
+
+  <footer style="border-top: 1px solid rgba(244,247,251,0.09); padding: 28px clamp(16px, 4vw, 46px) 40px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; font-size: 12px; color: #7f95b5;">
+    <span style="display: flex; align-items: center; gap: 10px;">
+      <span style="width: 24px; height: 24px; flex: none; border-radius: 8px; background-color: #0b1220; background-image: url('assets/logo-jrr.png'); background-size: cover; background-position: center; border: 1px solid rgba(244,247,251,0.14);"></span>
+      JRR · Jaime Rivas · Granada
+    </span>
+    <span style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+      <span>618 648 370</span>
+      <span>jaimerivasgranada@gmail.com</span>
+    </span>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const FOTOS = [
+  // Semana Santa primero: es la serie más fuerte del portfolio.
+  ["img/m/palio-noche.jpg", "Palio · madrugada", "semana", false],
+  ["img/m/cristo-contraluz.jpg", "Contraluz sobre la Alhambra", "semana", false],
+  ["img/m/dolorosa.jpg", "Dolorosa", "semana", false],
+  ["img/m/palio-velas-bn.jpg", "Velas", "semana", true],
+  ["img/m/cristo-catedral.jpg", "Salida de la Catedral", "semana", false],
+  ["img/m/nazareno.jpg", "Nazareno", "semana", false],
+  ["img/m/virgen-palio.jpg", "Bajo palio", "semana", false],
+  ["img/m/nino-cupula.jpg", "Niño · cúpula", "semana", false],
+  ["img/m/virgen-azul.jpg", "Manto azul", "semana", false],
+  ["img/m/bola-cristal.jpg", "Reflejo", "semana", false],
+  ["img/m/cristo-torre.jpg", "Torre y trono", "semana", false],
+  ["img/m/nino-atardecer.jpg", "Niño · atardecer", "semana", false],
+
+  ["img/m/mercado-bn.jpg", "Mercado · Granada", "urbanas", true],
+  ["img/m/calle-bn.jpg", "Calle · contraluz", "urbanas", true],
+  ["img/m/hombre-hotel.jpg", "Paso de noche", "urbanas", false],
+  ["img/m/teatro-real-azul.jpg", "Hora azul", "urbanas", false],
+  ["img/m/almudena-ultima-luz.jpg", "Última luz", "urbanas", false],
+  ["img/m/fuente-azul.jpg", "Fuente", "urbanas", false],
+  ["img/m/castillo-noche.jpg", "Castillo de noche", "urbanas", false],
+  ["img/m/viena-estela.jpg", "Estela sobre Viena", "urbanas", false],
+  ["img/m/coliseo-oro.jpg", "Coliseo", "urbanas", false],
+  ["img/m/ventana-cocina.jpg", "Ventana", "urbanas", false],
+  ["img/m/calle-arcos.jpg", "Arcos al amanecer", "urbanas", false],
+  ["img/m/iglesia-madera.jpg", "Iglesia de madera", "urbanas", false],
+
+  ["img/m/atardecer-mar.jpg", "Gaviota al sol", "naturaleza", false],
+  ["img/m/playa-luna.jpg", "Playa de luna", "naturaleza", false],
+  ["img/m/funicular-bosque.jpg", "Funicular", "naturaleza", false],
+  ["img/m/barcas-azul.jpg", "Barcas", "naturaleza", false],
+  ["img/m/estatua-sol.jpg", "Silueta al sol", "naturaleza", false],
+  ["img/m/luna-llena.jpg", "Luna llena", "naturaleza", false],
+  ["img/m/gaviota-tejados.jpg", "Sobre los tejados", "naturaleza", false],
+
+  ["img/m/iberia-dorado.jpg", "Aproximación dorada", "aviacion", false],
+  ["img/m/vueling.jpg", "Tren fuera", "aviacion", false],
+  ["img/m/silueta-luna.jpg", "Silueta y luna", "aviacion", false]
+];
+
+const NOMBRES = { semana: "Semana Santa", urbanas: "Urbana", naturaleza: "Naturaleza", aviacion: "Aviación" };
+
+class Component extends DCLogic {
+  state = { vista: "inicio", filtro: "todo", tope: 12 };
+
+  ir = (vista) => () => {
+    this.setState({ vista, tope: 12 });
+    try { window.scrollTo({ top: 0, behavior: "instant" }); } catch (e) { window.scrollTo(0, 0); }
+  };
+
+  renderVals() {
+    const { vista, filtro } = this.state;
+    const foto = (src, bn) => "position: absolute; inset: 0; background-color: #16233b; background-image: url('" + src + "'); background-size: cover; background-position: center;" + (bn ? " filter: grayscale(1) contrast(1.05);" : "");
+
+    const paginas = [
+      ["Inicio", "inicio"],
+      ["Trabajo", "trabajo"],
+      ["Servicios", "servicios"],
+      ["Tarifas", "tarifas"],
+      ["Sobre mí", "autor"],
+      ["Contacto", "contacto"]
+    ];
+
+    const temas = [["todo", "Todo"]].concat(Object.keys(NOMBRES).map(k => [k, NOMBRES[k]]));
+    const visibles = FOTOS.filter(f => filtro === "todo" || f[2] === filtro);
+
+    return {
+      enInicio: vista === "inicio",
+      enTrabajo: vista === "trabajo",
+      enServicios: vista === "servicios",
+      enTarifas: vista === "tarifas",
+      enAutor: vista === "autor",
+      enContacto: vista === "contacto",
+
+      irInicio: this.ir("inicio"),
+      irTrabajo: this.ir("trabajo"),
+      irServicios: this.ir("servicios"),
+      irContacto: this.ir("contacto"),
+
+      nav: paginas.map(([label, v]) => ({
+        label,
+        go: this.ir(v),
+        style: "border: 0; background: none; cursor: pointer; padding: 8px 10px; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; white-space: nowrap; transition: color 160ms ease, background 160ms ease; " +
+          (vista === v ? "color: #ff9a72; background: rgba(255,107,61,0.12);" : "color: #a9bad4;")
+      })),
+
+      filtros: temas.map(([k, label]) => ({
+        label,
+        pick: () => this.setState({ filtro: k, tope: 12 }),
+        style: "cursor: pointer; padding: 0 16px; min-height: 40px; display: inline-flex; align-items: center; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; transition: border-color 160ms ease, color 160ms ease, background 160ms ease; " +
+          (filtro === k
+            ? "border: 1px solid #ff6b3d; background: rgba(255,107,61,0.14); color: #ff9a72; font-weight: 700;"
+            : "border: 1px solid rgba(244,247,251,0.16); background: rgba(244,247,251,0.04); color: #c2d0e6;")
+      })),
+
+      galeria: visibles.slice(0, this.state.tope).map(([src, pie, tema, bn]) => ({
+        pie, tema: NOMBRES[tema], style: foto(src, bn)
+      })),
+      hayMas: visibles.length > this.state.tope,
+      verMas: () => this.setState(s => ({ tope: s.tope + 12 })),
+      restantes: (visibles.length - this.state.tope) + " más",
+      destacadas: ["img/m/palio-noche.jpg", "img/m/mercado-bn.jpg", "img/m/atardecer-mar.jpg"]
+        .map(src => {
+          const f0 = FOTOS.find(x => x[0] === src);
+          return { pie: f0 ? f0[1] : "", style: foto(src, f0 ? f0[3] : false) };
+        }),
+
+      cifras: [
+        { dato: "48 h", pie: "Y tenéis las fotos entregadas" },
+        { dato: "2 días", pie: "De aviso me bastan" },
+        { dato: "5", pie: "Deportes que cubro" },
+        { dato: "Granada", pie: "Y toda la provincia" }
+      ],
+
+      servicios: [
+        { titulo: "Fotos reveladas", texto: "Todas las que salgan bien, sin cupo y a plena resolución. Nada de archivos en bruto.",
+          icon: "M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z" },
+        { titulo: "Vídeo con dron", texto: "Plano cenital de la alineación y pasadas de jugada, cuando el reglamento permite volar.",
+          icon: "M9.5 9.5h5v5h-5zM9.5 11.5H7A2.5 2.5 0 1 1 9.5 9v2.5Zm5 0H17A2.5 2.5 0 1 0 14.5 9v2.5Zm-5 1H7A2.5 2.5 0 1 0 9.5 15v-2.5Zm5 0H17A2.5 2.5 0 1 1 14.5 15v-2.5Z" },
+        { titulo: "Uso libre para el club", texto: "Podéis usar las fotos en vuestras redes y en la web del club citando la autoría, sin pagar nada más.",
+          icon: "M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7ZM3 7l2-3h14l2 3M8 12h8" },
+        { titulo: "Entrega en 48 horas", texto: "Del sábado al lunes. Y fotos libres para las redes del club, citando la autoría.",
+          icon: "M12 8v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" },
+        { titulo: "Cofradías y actos", texto: "Salidas procesionales, entregas de trofeos y celebraciones. Siempre con permiso previo y las condiciones de uso que pida la hermandad.",
+          icon: "M12 3v18M7 8h10M9 21h6" }
+      ],
+
+      pasos: [
+        { num: "01", titulo: "Me lo contáis", texto: "Día, hora, campo y categoría. Os doy precio cerrado el mismo día." },
+        { num: "02", titulo: "Voy y trabajo", texto: "Cámara desde banda y fondo, y el dron cuando el reglamento lo permite." },
+        { num: "03", titulo: "Entrego en 48 h", texto: "Todo revelado, por Drive o WeTransfer, a plena resolución." },
+        { num: "04", titulo: "Y las usáis", texto: "Vuestras para redes, cartelería y web del club, citando la autoría." }
+      ],
+
+      tarifas: [
+        { evento: "Entrenamiento · 1 h", fotos: "30 €", dron: "48 €", cabeza: "4 € entre 12" },
+        { evento: "Partido o salida · 2 h", fotos: "50 €", dron: "75 €", cabeza: "6,50 € entre 12" },
+        { evento: "Carrera pequeña · 3 h", fotos: "75 €", dron: "105 €", cabeza: "9 € entre 12" },
+        { evento: "Media jornada · 4 h", fotos: "95 €", dron: "135 €", cabeza: "11 € entre 12" },
+        { evento: "Torneo · 6 h", fotos: "130 €", dron: "185 €", cabeza: "15 € entre 12" },
+        { evento: "Salida procesional · 5 h", fotos: "115 €", dron: "—", cabeza: "presupuesto" }
+      ],
+
+      impresos: [
+        { precio: "20 €", titulo: "Póster", texto: "30×40 cm en papel fotográfico, de la foto que elijas." },
+        { precio: "5 €", titulo: "Imán de nevera", texto: "7×9 cm con imán detrás. El que más se regala." },
+        { precio: "5 €", titulo: "Llavero", texto: "4×6 cm con anilla y protector, para llevarla encima." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

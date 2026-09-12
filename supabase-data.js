@@ -326,6 +326,105 @@
       return error ? { error: error.message } : { ok: true };
     },
 
+    // ---- Permiso de imagen de un menor, firmado por su tutor ----
+    // Va en la misma tabla 'consents' con las columnas de tutor rellenas, para
+    // no duplicar esquema: un consentimiento con player_name es de un menor.
+    async saveGuardianConsent(c) {
+      if (!live) return { ok: true };
+      const { data: who } = await sb.auth.getUser();
+      const { error } = await sb.from("consents").insert({
+        group_id: c.groupId && String(c.groupId).length > 20 ? c.groupId : null,
+        user_id: (who && who.user && who.user.id) || null,
+        email: c.guardianEmail || null,
+        name: c.guardianName || null,
+        player_name: c.playerName || null,
+        guardian_name: c.guardianName || null,
+        guardian_id: c.guardianId || null,
+        relation: c.relation || null,
+        allow_gallery: c.allowGallery !== false,
+        allow_social: !!c.allowSocial,
+        signature: c.signature || null
+      });
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    async listConsents(groupId) {
+      if (!live) return { consents: [] };
+      let q = sb.from("consents")
+        .select("id,group_id,player_name,guardian_name,guardian_id,relation,allow_gallery,allow_social,email,created_at")
+        .not("player_name", "is", null)
+        .order("created_at", { ascending: false });
+      if (groupId && String(groupId).length > 20) q = q.eq("group_id", groupId);
+      const { data, error } = await q;
+      if (error) return { consents: [], error: error.message };
+      return {
+        consents: (data || []).map(x => ({
+          id: x.id, groupId: x.group_id, playerName: x.player_name,
+          guardianName: x.guardian_name, guardianId: x.guardian_id,
+          relation: x.relation, allowGallery: x.allow_gallery,
+          allowSocial: x.allow_social, email: x.email, createdAt: x.created_at
+        }))
+      };
+    },
+
+    // ---- Encargos de producto impreso (se pagan en mano al entregar) ----
+    async createPrintOrder(p) {
+      if (!live) return { error: "local" };
+      const { data: who } = await sb.auth.getUser();
+      const uid = (who && who.user && who.user.id) || null;
+      if (!uid) return { error: "sin-sesion" };
+      const fila = {
+        buyer_id: uid,
+        buyer_name: p.buyerName || null,
+        buyer_email: p.buyerEmail || (who.user && who.user.email) || null,
+        buyer_phone: p.buyerPhone || null,
+        group_id: p.groupId && String(p.groupId).length > 20 ? p.groupId : null,
+        album_id: p.albumId && String(p.albumId).length > 20 ? p.albumId : null,
+        media_id: p.mediaId && String(p.mediaId).length > 20 ? p.mediaId : null,
+        product: p.product,
+        product_label: p.productLabel || null,
+        qty: Math.max(1, Number(p.qty) || 1),
+        unit_price: Number(p.unitPrice) || 0,
+        total: Number(p.total) || 0,
+        notes: p.notes || null,
+        status: "pending"
+      };
+      const { data, error } = await sb.from("print_orders").insert(fila).select("id,ref").single();
+      if (error) return { error: error.message };
+      return { ok: true, id: data.id, ref: data.ref };
+    },
+
+    async listPrintOrders() {
+      if (!live) return { prints: [] };
+      const { data, error } = await sb.from("print_orders")
+        .select("id,ref,buyer_name,buyer_email,buyer_phone,group_id,album_id,media_id,product,product_label,qty,unit_price,total,status,notes,created_at,delivered_at")
+        .order("created_at", { ascending: false });
+      if (error) return { prints: [], error: error.message };
+      return {
+        prints: (data || []).map(x => ({
+          id: x.id, ref: x.ref, buyerName: x.buyer_name, buyerEmail: x.buyer_email,
+          buyerPhone: x.buyer_phone, groupId: x.group_id, albumId: x.album_id,
+          mediaId: x.media_id, product: x.product, productLabel: x.product_label,
+          qty: x.qty, unitPrice: x.unit_price, total: x.total, status: x.status,
+          notes: x.notes, createdAt: x.created_at, deliveredAt: x.delivered_at
+        }))
+      };
+    },
+
+    async setPrintStatus(id, status) {
+      if (!live) return { ok: true };
+      const patch = { status };
+      if (status === "delivered") patch.delivered_at = new Date().toISOString();
+      const { error } = await sb.from("print_orders").update(patch).eq("id", id);
+      return error ? { error: error.message } : { ok: true };
+    },
+
+    async deletePrintOrder(id) {
+      if (!live) return { ok: true };
+      const { error } = await sb.from("print_orders").delete().eq("id", id);
+      return error ? { error: error.message } : { ok: true };
+    },
+
     async deleteMedia(mediaId) {
       if (!live) return { ok: true };
       const { data: m } = await sb.from("media").select("original_path,preview_path").eq("id", mediaId).single();
