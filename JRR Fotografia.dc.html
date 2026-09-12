@@ -71,12 +71,12 @@
         <span style="position: absolute; top: -120px; right: -80px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(255,107,61,0.18), rgba(255,107,61,0) 70%); pointer-events: none;"></span>
 
         <div style="position: relative; padding: clamp(46px, 8vw, 100px) clamp(16px, 4vw, 46px) clamp(40px, 6vw, 76px); max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; animation: riseIn 600ms ease both;">
-          <span style="display: inline-flex; align-items: center; gap: 9px; align-self: flex-start; padding: 8px 15px; border-radius: 999px; background: rgba(255,107,61,0.14); border: 1px solid rgba(255,107,61,0.3); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #ff9a72;">Granada y provincia</span>
+          <span style="display: inline-flex; align-items: center; gap: 9px; align-self: flex-start; padding: 8px 15px; border-radius: 999px; background: rgba(255,107,61,0.14); border: 1px solid rgba(255,107,61,0.3); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #ff9a72; white-space: nowrap;">Granada y provincia</span>
           <h1 style="margin: 0; max-width: 17ch; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(38px, 6.6vw, 78px); line-height: 0.98; letter-spacing: -0.04em; text-wrap: balance;">Fotografía para clubes, equipos y hermandades</h1>
           <p style="margin: 0; max-width: 46ch; font-size: clamp(16px, 1.8vw, 20px); line-height: 1.6; color: #c2d0e6;">Cubro partidos, carreras, procesiones y actos con cámara y dron. En 48 horas tenéis las fotos reveladas y listas para usar: redes, cartelería y web, sin pagar nada más por el uso.</p>
           <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px;">
             <a href="https://wa.me/34618648370" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 28px; min-height: 54px; border-radius: 999px; background: linear-gradient(140deg, #ff6b3d, #ff9d3d); color: #14233c; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; box-shadow: 0 1px 0 rgba(255,255,255,0.28) inset, 0 12px 28px -8px rgba(255,107,61,0.6);">Hablamos por WhatsApp</a>
-            <button type="button" onClick="{{ irTrabajo }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; min-height: 54px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer;" style-hover="border-color: #ff6b3d; color: #ff9a72">Ver el trabajo</button>
+            <button type="button" onClick="{{ irTrabajo }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; min-height: 54px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; white-space: nowrap; cursor: pointer;" style-hover="border-color: #ff6b3d; color: #ff9a72">Ver el trabajo</button>
           </div>
         </div>
       </section>
@@ -115,8 +115,8 @@
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 14px;">
           <sc-for list="{{ destacadas }}" as="w" hint-placeholder-count="3">
-            <figure style="margin: 0; position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; background: #131f34; border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 16px 34px -18px rgba(4,9,20,0.8); transition: border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1);" style-hover="border-color: rgba(255,107,61,0.36); transform: translateY(-3px)">
-              <span style="{{ w.style }}"></span>
+            <figure style="margin: 0; position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; background: #16233b; border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 16px 34px -18px rgba(4,9,20,0.8); transition: border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1);" style-hover="border-color: rgba(255,107,61,0.36); transform: translateY(-3px)">
+              <img src="{{ w.src }}" alt="{{ w.pie }}" loading="lazy" decoding="async" style="{{ w.imgStyle }}">
               <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 16px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,247,251,0.82); background: linear-gradient(to top, rgba(4,9,20,0.82), transparent);">{{ w.pie }}</figcaption>
             </figure>
           </sc-for>
@@ -139,7 +139,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 14px;">
           <sc-for list="{{ galeria }}" as="w" hint-placeholder-count="6">
             <figure style="margin: 0; position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 20px; background: #16233b; border: 1px solid rgba(244,247,251,0.08); box-shadow: 0 16px 34px -18px rgba(4,9,20,0.8); transition: border-color 220ms ease, transform 220ms cubic-bezier(.2,.8,.2,1); animation: riseIn 420ms ease both;" style-hover="border-color: rgba(255,107,61,0.36); transform: translateY(-3px)">
-              <span style="{{ w.style }}"></span>
+              <img src="{{ w.src }}" alt="{{ w.pie }}" loading="lazy" decoding="async" style="{{ w.imgStyle }}">
               <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,247,251,0.82); background: linear-gradient(to top, rgba(4,9,20,0.84), transparent);">
                 <span>{{ w.pie }}</span>
                 <span style="color: #ff9a72;">{{ w.tema }}</span>
@@ -225,7 +225,7 @@
             <button type="button" onClick="{{ irContacto }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 26px; min-height: 52px; border-radius: 999px; border: 1px solid rgba(244,247,251,0.24); background: rgba(244,247,251,0.05); color: #f4f7fb; font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer;" style-hover="border-color: #ff6b3d; color: #ff9a72">Cómo contactarme →</button>
           </div>
           <figure style="margin: 0; position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 24px; background: #131f34; border: 1px solid rgba(244,247,251,0.1);">
-            <span style="position: absolute; inset: 0; background-image: url('img/m/retrato.jpg'); background-size: cover; background-position: center; filter: grayscale(1) contrast(1.05);"></span>
+            <img src="img/m/retrato.jpg" alt="Jaime Rivas" loading="lazy" decoding="async" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05);">
           </figure>
         </div>
       </section>
@@ -327,7 +327,9 @@ class Component extends DCLogic {
 
   renderVals() {
     const { vista, filtro } = this.state;
-    const foto = (src, bn) => "position: absolute; inset: 0; background-color: #16233b; background-image: url('" + src + "'); background-size: cover; background-position: center;" + (bn ? " filter: grayscale(1) contrast(1.05);" : "");
+    // Con <img loading="lazy"> el navegador solo pide las que están a la vista.
+    // Un fondo CSS no se puede diferir: se pedían las doce a la vez.
+    const imgStyle = (bn) => "position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;" + (bn ? " filter: grayscale(1) contrast(1.05);" : "");
 
     const paginas = [
       ["Inicio", "inicio"],
@@ -364,14 +366,14 @@ class Component extends DCLogic {
       filtros: temas.map(([k, label]) => ({
         label,
         pick: () => this.setState({ filtro: k, tope: 12 }),
-        style: "cursor: pointer; padding: 0 16px; min-height: 40px; display: inline-flex; align-items: center; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; transition: border-color 160ms ease, color 160ms ease, background 160ms ease; " +
+        style: "cursor: pointer; padding: 0 16px; min-height: 40px; display: inline-flex; align-items: center; border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 13px; white-space: nowrap; transition: border-color 160ms ease, color 160ms ease, background 160ms ease; " +
           (filtro === k
             ? "border: 1px solid #ff6b3d; background: rgba(255,107,61,0.14); color: #ff9a72; font-weight: 700;"
             : "border: 1px solid rgba(244,247,251,0.16); background: rgba(244,247,251,0.04); color: #c2d0e6;")
       })),
 
       galeria: visibles.slice(0, this.state.tope).map(([src, pie, tema, bn]) => ({
-        pie, tema: NOMBRES[tema], style: foto(src, bn)
+        pie, tema: NOMBRES[tema], src, imgStyle: imgStyle(bn)
       })),
       hayMas: visibles.length > this.state.tope,
       verMas: () => this.setState(s => ({ tope: s.tope + 12 })),
@@ -379,7 +381,7 @@ class Component extends DCLogic {
       destacadas: ["img/m/palio-noche.jpg", "img/m/mercado-bn.jpg", "img/m/atardecer-mar.jpg"]
         .map(src => {
           const f0 = FOTOS.find(x => x[0] === src);
-          return { pie: f0 ? f0[1] : "", style: foto(src, f0 ? f0[3] : false) };
+          return { pie: f0 ? f0[1] : "", src, imgStyle: imgStyle(f0 ? f0[3] : false) };
         }),
 
       cifras: [
