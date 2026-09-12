@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>@JRR</title>
+<title>JRR · Fotografía y dron en Granada</title>
+<meta name="description" content="Fotografía deportiva con cámara y dron para clubes y equipos en Granada. Entrega en 48 horas.">
 <link rel="icon" type="image/png" href="assets/logo-jrr.png">
 <link rel="apple-touch-icon" href="assets/logo-jrr.png">
-<link rel="canonical" href="./Galeria%20HAMK%20RUN%20CLUB.dc.html">
+<link rel="canonical" href="./JRR%20Fotografia.dc.html">
 <style>
   html, body { height: 100%; margin: 0; }
   body {
-    background: radial-gradient(1200px 600px at 85% -10%, #1d3b6e 0%, rgba(29,59,110,0) 60%), #0b1220;
+    background: #0b1220;
     color: #f4f7fb;
     font-family: system-ui, sans-serif;
     display: grid;
@@ -20,11 +21,14 @@
 </style>
 </head>
 <body>
-<p>Abriendo la galería… <a id="ir" href="./Galeria%20HAMK%20RUN%20CLUB.dc.html">entrar</a></p>
+<p>Cargando… <a id="ir" href="./JRR%20Fotografia.dc.html">entrar</a></p>
 <script>
-  // Conserva los parámetros (?pedido=...&sesion=...) que Stripe devuelve al
-  // volver del pago; sin ellos no se puede confirmar la compra.
-  var destino = "./Galeria%20HAMK%20RUN%20CLUB.dc.html" + location.search + location.hash;
+  // Si Stripe devuelve al comprador tras el pago, trae ?pedido=…&sesion=…
+  // Esos casos van a la galería, que es donde se confirma la compra; el resto
+  // de visitas entran a la web pública.
+  var q = location.search;
+  var esVuelta = q.indexOf("pedido=") > -1 || q.indexOf("sesion=") > -1;
+  var destino = (esVuelta ? "./Galeria%20HAMK%20RUN%20CLUB.dc.html" : "./JRR%20Fotografia.dc.html") + q + location.hash;
   document.getElementById("ir").href = destino;
   location.replace(destino);
 </script>
